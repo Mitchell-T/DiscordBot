@@ -4,7 +4,7 @@ using Discord.Commands;
 
 namespace DiscordBotV5.Modules
 {
-    class AdminModule : ModuleBase<SocketCommandContext>
+    public class AdminModule : ModuleBase<SocketCommandContext>
     {
         [Command("kick")]
         [RequireUserPermission(GuildPermission.KickMembers)]
@@ -19,8 +19,8 @@ namespace DiscordBotV5.Modules
 
 
         [Command("ban")]
-        [RequireUserPermission(GuildPermission.KickMembers)]
-        [RequireBotPermission(GuildPermission.KickMembers)]
+        [RequireUserPermission(GuildPermission.BanMembers)]
+        [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Ban(IGuildUser user, [Remainder] string reason = "No reason was provided")
         {
             await Context.Channel.SendMessageAsync($"User {user.Mention} banned for \"{reason}\"");
