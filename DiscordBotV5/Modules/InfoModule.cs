@@ -2,12 +2,16 @@
 using Discord;
 using Discord.Commands;
 using System.Linq;
+using System;
+using Discord.WebSocket;
+using System.Collections.Generic;
 
 namespace DiscordBot.Modules
 {
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         [Command("info")]
+        [Alias("i")]
         public async Task Info()
         {
             await Context.Message.DeleteAsync();
@@ -21,6 +25,7 @@ namespace DiscordBot.Modules
         }
 
         [Command("serverinfo")]
+        [Alias("si")]
         public async Task ServerInfo()
         {
             await Context.Message.DeleteAsync();
@@ -63,6 +68,45 @@ namespace DiscordBot.Modules
             embed.AddField("Humans", humanCount, true);
             embed.AddField("Bots", botCount, true);
             await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("whois")]
+        [RequireUserPermission(GuildPermission.KickMembers)]
+        public async Task WhoIs(IGuildUser userToCheck)
+        {
+            string gamePlaying = userToCheck.Activity?.Name ?? "Not playing any games";
+            string nickName = userToCheck.Nickname ?? "-";
+            var owner = Context.Guild.Owner;
+            string isOwner;
+
+            if (userToCheck == owner)
+            {
+                isOwner = "true";
+            }
+            else
+            {
+                isOwner = "false";
+            }
+
+            SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(a => a.JoinedAt).ToArray();
+
+            int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
+
+
+            var embed = new EmbedBuilder();
+            embed.WithTitle("WhoIs Lookup for : " + userToCheck.Username);
+            embed.WithThumbnailUrl(userToCheck.GetAvatarUrl());
+            embed.WithDescription("**User :** " + userToCheck + "\n" +
+                                  "**Nickname :** " + nickName + "\n" +
+                                  "**Created on :** " + userToCheck.CreatedAt + "\n" +
+                                  "**Joined server on :** " + userToCheck.JoinedAt + "\n" +
+                                  "**Join position : **" + position + "\n" +
+                                  "**Current Game :** " + gamePlaying + "\n" +
+                                  "**Owner :** " + isOwner + "\n");
+            embed.WithColor(new Color(102, 255, 125));
+
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+
         }
     }
 }
