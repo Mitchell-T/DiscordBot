@@ -90,6 +90,7 @@ namespace DiscordBot.Modules
 
             SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(a => a.JoinedAt).ToArray();
 
+            // Remove bots from array
             sortedMembers = sortedMembers.Where(val => val.IsBot != true).ToArray();
 
             int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
@@ -97,13 +98,13 @@ namespace DiscordBot.Modules
             var embed = new EmbedBuilder();
             embed.WithTitle("WhoIs Lookup for : " + userToCheck.Username);
             embed.WithThumbnailUrl(userToCheck.GetAvatarUrl());
-            embed.WithDescription("**User :** " + userToCheck + "\n" +
-                                  "**Nickname :** " + nickName + "\n" +
-                                  "**Created on :** " + userToCheck.CreatedAt + "\n" +
-                                  "**Joined server on :** " + userToCheck.JoinedAt + "\n" +
-                                  "**Join position : **" + position + "\n" +
-                                  "**Current Game :** " + gamePlaying + "\n" +
-                                  "**Owner :** " + isOwner + "\n");
+            embed.WithDescription($"**User :** {userToCheck}\n" +
+                                  $"**Nickname :** {nickName}\n" +
+                                  $"**Created on :** {userToCheck.CreatedAt}\n" +
+                                  $"**Joined server on :** {userToCheck.JoinedAt}\n" +
+                                  $"**Join position : ** {position}\n" +
+                                  $"**Current Game :** {gamePlaying}\n" +
+                                  $"**Owner :** {isOwner}\n");
             embed.WithColor(new Color(102, 255, 125));
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
