@@ -90,8 +90,9 @@ namespace DiscordBot.Modules
 
             SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(a => a.JoinedAt).ToArray();
 
-            int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
+            sortedMembers = sortedMembers.Where(val => val.IsBot != true).ToArray();
 
+            int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
 
             var embed = new EmbedBuilder();
             embed.WithTitle("WhoIs Lookup for : " + userToCheck.Username);
