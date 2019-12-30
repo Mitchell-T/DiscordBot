@@ -16,6 +16,8 @@
 # Mono auto generated files
 mono_crash.*
 
+[Dd]iscordBotV5/Modules/NSFW/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
