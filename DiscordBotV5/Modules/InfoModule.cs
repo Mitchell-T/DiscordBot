@@ -4,7 +4,7 @@ using Discord.Commands;
 using System.Linq;
 using System;
 using Discord.WebSocket;
-using System.Collections.Generic;
+using DiscordBotV5.Misc;
 
 namespace DiscordBot.Modules
 {
@@ -40,6 +40,7 @@ namespace DiscordBot.Modules
             embed.AddField("Members", Context.Guild.MemberCount, true);
             embed.AddField("Ban count", (await Context.Guild.GetBansAsync()).Count, true);
             embed.AddField("Roles", Context.Guild.Roles.Count, true);
+            embed.AddField("Server age", TimeTools.PeriodOfTimeOutput(DateTime.Now.Subtract(Context.Guild.CreatedAt.DateTime)), true);
             embed.WithFooter($"Server ID: {Context.Guild.Id} | Server created: {Context.Guild.CreatedAt.ToString()}");
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
@@ -110,5 +111,6 @@ namespace DiscordBot.Modules
             await Context.Channel.SendMessageAsync("", false, embed.Build());
 
         }
+
     }
 }
