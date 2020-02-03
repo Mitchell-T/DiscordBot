@@ -115,8 +115,9 @@ namespace DiscordBot.Modules
         [Command("ping")]
         public async Task Ping()
         {
-            string emote = ""
-            await Context.Channel.SendMessageAsync($":ping_pong: pong!, this bot's ping is {Context.Client.Latency}");
+            int ping = Context.Client.Latency;
+            string emote = ping <= 100 ? ":white_check_mark:" : ":x:";
+            await Context.Channel.SendMessageAsync($":ping_pong: pong!, my ping is currently {ping} {emote}");
         }
 
     }
