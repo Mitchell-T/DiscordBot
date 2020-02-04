@@ -36,6 +36,7 @@ namespace DiscordBot.Services
             if (message.Source != MessageSource.User) return;
 
             int argPos = 0;
+            // Ban user from server if trying to massmention or raid
             if (message.MentionedUsers.Count > 8 && !((IGuildUser)message.Author).GuildPermissions.KickMembers == true) await ((IGuildUser)message.Author).BanAsync( 1, "raid or massmention");
             if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos) && !message.HasCharPrefix('$', ref argPos)) return;
 

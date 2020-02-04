@@ -116,8 +116,21 @@ namespace DiscordBot.Modules
         public async Task Ping()
         {
             int ping = Context.Client.Latency;
-            string emote = ping <= 100 ? ":white_check_mark:" : ":x:";
-            await Context.Channel.SendMessageAsync($":ping_pong: pong!, my ping is currently {ping} {emote}");
+            var embed = new EmbedBuilder();
+            Color statusColor;
+            if(ping <= 100)
+            {
+                statusColor = Color.Green;
+            } else if(ping < 200 && ping > 100)
+            {
+                statusColor = Color.Orange;
+            } else
+            {
+                statusColor = Color.Red;
+            }
+            embed.WithColor(statusColor);
+            embed.WithDescription($":ping_pong: pong!, my ping is currently {ping}");
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
     }
