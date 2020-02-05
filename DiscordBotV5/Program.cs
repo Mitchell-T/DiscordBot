@@ -40,6 +40,8 @@ namespace DiscordBotV5
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                // Audio
+                .AddSingleton<AudioService>()
                 // Logging
                 .AddLogging()
                 .AddSingleton<LogService>()
