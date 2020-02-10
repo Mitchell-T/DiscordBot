@@ -14,6 +14,7 @@ namespace DiscordBotV5.Modules.Fun
     {
 
         [Command("cat")]
+        [Summary("Post a cute cat picture")]
         public async Task Cat(string catType = "gif")
         {
             await Context.Message.DeleteAsync();
@@ -35,6 +36,7 @@ namespace DiscordBotV5.Modules.Fun
 
 
         [Command("dog")]
+        [Summary("Post a cute doggo picture")]
         public async Task Dog(string dogType = "gif")
         {
             await Context.Message.DeleteAsync();

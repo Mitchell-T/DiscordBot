@@ -7,6 +7,7 @@ namespace DiscordBotV5.Modules
     public class AdminModule : ModuleBase<SocketCommandContext>
     {
         [Command("kick")]
+        [Summary("Kick a user from the server")]
         [RequireUserPermission(GuildPermission.KickMembers)]
         [RequireBotPermission(GuildPermission.KickMembers)]
         public async Task Kick(IGuildUser user, [Remainder] string reason = "No reason was provided")
@@ -19,6 +20,7 @@ namespace DiscordBotV5.Modules
 
 
         [Command("ban")]
+        [Summary("Ban a user from the server")]
         [RequireUserPermission(GuildPermission.BanMembers)]
         [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task Ban(IGuildUser user, [Remainder] string reason = "No reason was provided")

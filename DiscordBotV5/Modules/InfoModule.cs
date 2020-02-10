@@ -11,6 +11,7 @@ namespace DiscordBot.Modules
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         [Command("info")]
+        [Summary("Show info about the bot")]
         [Alias("i")]
         public async Task Info()
         {
@@ -25,6 +26,7 @@ namespace DiscordBot.Modules
         }
 
         [Command("serverinfo")]
+        [Summary("Show info about the server")]
         [Alias("si")]
         public async Task ServerInfo()
         {
@@ -47,6 +49,7 @@ namespace DiscordBot.Modules
         }
 
         [Command("membercount")]
+        [Summary("Show howmany members your server has")]
         [Alias("mc")]
         public async Task MemberCount()
         {
@@ -72,6 +75,7 @@ namespace DiscordBot.Modules
         }
 
         [Command("whois")]
+        [Summary("Show info about a specific user")]
         [RequireUserPermission(GuildPermission.KickMembers)]
         public async Task WhoIs(IGuildUser userToCheck)
         {
@@ -113,6 +117,7 @@ namespace DiscordBot.Modules
         }
 
         [Command("ping")]
+        [Summary("Show the bots ping to discord servers")]
         public async Task Ping()
         {
             int ping = Context.Client.Latency;
