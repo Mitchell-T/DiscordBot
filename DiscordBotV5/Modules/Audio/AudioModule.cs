@@ -2,7 +2,7 @@
 using Discord;
 using Discord.Commands;
 
-public class AudioModule : ModuleBase<ICommandContext>
+public class AudioModule : ModuleBase<SocketCommandContext>
 {
     private readonly AudioService _service;
 
