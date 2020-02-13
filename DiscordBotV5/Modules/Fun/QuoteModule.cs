@@ -23,17 +23,19 @@ namespace DiscordBotV5.Modules.Fun
                 File.Create("Storage/Quotes.json");
             }
             FileStream file = File.Open("Storage/Quotes.json", FileMode.Open);
-            List<Quote> quoteList = new List<Quote>();
+            string jsonfile = File.ReadAllText("Storage/Quotes.json");
+
+            //List<Quote> quoteList = 
 
             // Retrieve message from id
             IMessage message = await Context.Channel.GetMessageAsync(id);
             // Turn message into object
-            Quote newQuote = new Quote(message.Content, message.Timestamp, message.Author);
+            Quote newQuote = new Quote(message.Content, message.Timestamp.DateTime.ToShortDateString(), message.Author.Id.ToString());
             // 
 
-
-
-            // add to json
+            // Add to JSON
+            string json = JsonConvert.SerializeObject(newQuote, Formatting.Indented);
+            Console.WriteLine(json);
         }
 
     }
@@ -41,9 +43,9 @@ namespace DiscordBotV5.Modules.Fun
     public class Quote
     {
         public string QuotedText { get; set; }
-        public DateTimeOffset Date { get; set; }
-        public IUser User { get; set; }
-        public Quote(string quotedText, DateTimeOffset date, IUser user)
+        public string Date { get; set; }
+        public string User { get; set; }
+        public Quote(string quotedText, string date, string user)
         {
             QuotedText = quotedText;
             Date = date;

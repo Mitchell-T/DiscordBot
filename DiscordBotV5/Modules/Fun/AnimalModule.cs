@@ -37,6 +37,7 @@ namespace DiscordBotV5.Modules.Fun
 
         [Command("dog")]
         [Summary("Post a cute doggo picture")]
+        [Alias("renegade")]
         public async Task Dog(string dogType = "gif")
         {
             await Context.Message.DeleteAsync();

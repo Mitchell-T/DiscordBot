@@ -32,6 +32,7 @@ namespace DiscordBotV5.Modules
         }
 
         [Command("mute")]
+        [Summary("Mutes a user")]
         [RequireUserPermission(GuildPermission.MuteMembers)]
         [RequireBotPermission(GuildPermission.MuteMembers)]
         public async Task Mute(IGuildUser user)
@@ -45,7 +46,8 @@ namespace DiscordBotV5.Modules
             }
         }
 
-        [Command("mute")]
+        [Command("unmute")]
+        [Summary("Unmutes a user")]
         [RequireUserPermission(GuildPermission.MuteMembers)]
         [RequireBotPermission(GuildPermission.MuteMembers)]
         public async Task UnMute(IGuildUser user)
