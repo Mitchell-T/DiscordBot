@@ -9,8 +9,7 @@ using System.Collections.Generic;
 using DiscordBot.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DiscordBot.Modules
-
+namespace DiscordBot.Modules.Utility
 {
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
@@ -62,7 +61,6 @@ namespace DiscordBot.Modules
 
         [Command("membercount")]
         [Summary("Show howmany members your server has")]
-        [Alias("mc")]
         public async Task MemberCount()
         {
             int botCount = 0;

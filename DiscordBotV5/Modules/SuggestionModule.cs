@@ -36,6 +36,7 @@ namespace DiscordBotV5.Modules
             embed.WithFooter(DateTime.Now.ToShortDateString() + " || Powered by me");
             embed.WithColor(new Color(0x03adfc));
             IUserMessage suggestionMessage = await suggestionChannel.SendMessageAsync("", false, embed.Build());
+
             await suggestionMessage.AddReactionsAsync(emotes);
         }
     }

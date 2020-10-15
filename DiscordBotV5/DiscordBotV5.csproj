@@ -25,7 +25,10 @@
     <Compile Update="Modules\Fun\AnimalModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\InfoModule.cs">
+    <Compile Update="Modules\Fun\MagicEightBall.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="Modules\Utility\InfoModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\SuggestionModule.cs">
