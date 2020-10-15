@@ -33,6 +33,10 @@ public class AudioService
 
     public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string path)
     {
+
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+            return;
+
         //if (!File.Exists(path))
         //{
         //    await channel.SendMessageAsync("File does not exist.");
@@ -54,6 +58,7 @@ public class AudioService
 
     private Process CreateProcess(string path)
     {
+
         return Process.Start(new ProcessStartInfo
         {
             FileName = "cmd.exe",
