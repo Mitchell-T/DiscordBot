@@ -9,8 +9,8 @@ namespace DiscordBotV5.Misc
         public string token = "insert token here";
         public string prefix = "insert prefix here";
         public string dbUsername = "database";
-        public string dbPassword = "";
-        public string dbAddress = "";
-        public string dbPort = "";
+        public string dbPassword = "password";
+        public string dbAddress = "ipAddress";
+        public string dbPort = "port";
     }
 }

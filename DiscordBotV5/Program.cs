@@ -7,6 +7,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBot.Services;
+using Newtonsoft.Json;
+using DiscordBotV5.Misc;
 
 namespace DiscordBotV5
 {
@@ -66,7 +68,10 @@ namespace DiscordBotV5
 
         private void generateNewConfig()
         {
-            Json
+            ConfigTemplate template = new ConfigTemplate();
+            string json = JsonConvert.SerializeObject(template, Formatting.Indented);
+            System.IO.File.WriteAllText("config.json", json);
+            
         }
 
     }
