@@ -16,10 +16,10 @@ namespace DiscordBot.Services
         private readonly IConfiguration _config;
         private IServiceProvider _provider;
 
-        public CommandHandlingService(IServiceProvider provider, DiscordSocketClient discord, CommandService commands)
+        public CommandHandlingService(IServiceProvider provider)
         {
-            _discord = discord;
-            _commands = commands;
+            _discord = provider.GetRequiredService<DiscordSocketClient>();
+            _commands = provider.GetRequiredService<CommandService>();
             _provider = provider;
             _config = provider.GetRequiredService<IConfiguration>();
 
