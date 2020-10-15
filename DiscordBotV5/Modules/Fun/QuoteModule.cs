@@ -7,23 +7,20 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using MongoDB.Driver;
 
 namespace DiscordBotV5.Modules.Fun
 {
     public class QuoteModule : ModuleBase<SocketCommandContext>
     {
+        string dbUsername, dbPassword, dbAddress, dbPort;
 
         [Command("addquote")]
         [Alias("aq")]
         public async Task AddQuote(ulong id)
         {
-            // Check for file and open
-            if (!File.Exists("Storage/Quotes.json"))
-            {
-                File.Create("Storage/Quotes.json");
-            }
-            FileStream file = File.Open("Storage/Quotes.json", FileMode.Open);
-            string jsonfile = File.ReadAllText("Storage/Quotes.json");
+            // Connect to database
+            MongoClient dbClient = new MongoClient($"mongodb://{dbUsername}:{dbPassword}@{dbAddress}:{dbPort}/?authSource=myUserAdmin");
 
             //List<Quote> quoteList = 
 
