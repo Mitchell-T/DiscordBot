@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "DiscordBotV5": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Test_Token": "NjU2ODc2OTQ0NzI1NjM5MTk4.XfpCUw.NvaXxw3UuiS4GwQe1ieXUMfrt_o",
+        "Test_Prefix": "$"
+      }
+    }
+  }
+}

@@ -21,6 +21,11 @@ namespace DiscordBotV5
         public async Task MainAsync()
         {
             _client = new DiscordSocketClient();
+
+            if (!File.Exists("config.json")){
+                generateNewConfig();
+                Environment.Exit(0);
+            }
             _config = BuildConfig();
 
             var services = ConfigureServices();
@@ -58,5 +63,11 @@ namespace DiscordBotV5
                 .AddJsonFile("config.json")
                 .Build();
         }
+
+        private void generateNewConfig()
+        {
+            Json
+        }
+
     }
 }
