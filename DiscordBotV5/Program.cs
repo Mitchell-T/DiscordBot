@@ -29,6 +29,9 @@ namespace DiscordBotV5
             ConfigTools configBuilder = new ConfigTools();
             _config = configBuilder.Build();
 
+            // Download required files from my server
+
+
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
