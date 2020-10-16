@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordBotV5.Modules
+namespace DiscordBotV5.Modules.Utility
 {
     public class SuggestionModule : ModuleBase<SocketCommandContext>
     {

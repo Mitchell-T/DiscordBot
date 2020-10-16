@@ -26,7 +26,7 @@
     <Compile Update="Modules\Fun\AnimalModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\Fun\MagicEightBall.cs">
+    <Compile Update="Modules\Fun\MagicEightBallModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Modules\Utility\InfoModule.cs">
@@ -56,6 +56,12 @@
     <None Update="libsodium.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Modules\Moderation\Channels\" />
+    <Folder Include="Modules\Moderation\Server\" />
+    <Folder Include="Modules\Moderation\Users\" />
   </ItemGroup>
 
 </Project>

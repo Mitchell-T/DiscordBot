@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace DiscordBotV5.Modules.Fun
 {
-    public class MagicEightBall : ModuleBase<SocketCommandContext>
+    public class MagicEightBallModule : ModuleBase<SocketCommandContext>
     {
         [Command("8ball")]
         [Alias("eightball", "8b")]
