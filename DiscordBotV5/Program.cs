@@ -30,7 +30,7 @@ namespace DiscordBotV5
             _config = configBuilder.Build();
 
             // Download required files from my server
-
+            prerequisiteFilesDownloader.StartupCheck();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
