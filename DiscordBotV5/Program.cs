@@ -25,17 +25,15 @@ namespace DiscordBotV5
         {
             _client = new DiscordSocketClient();
 
+            // build or create config
             ConfigTools configBuilder = new ConfigTools();
-            if (!File.Exists("config.json")){
-                configBuilder.generateNewConfig();
-                Environment.Exit(0);
-            }
-            _config = configBuilder.BuildConfig();
+            _config = configBuilder.Build();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
 
+            // log in the bot with the supplied bot token
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
 
