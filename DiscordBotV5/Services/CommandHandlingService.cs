@@ -46,10 +46,14 @@ namespace DiscordBot.Services
             int argPos = 0;
 
             // set prefix from config
-            char prefix = Char.Parse(_config["token"]);
+            char prefix = Char.Parse(_config["prefix"]);
             // Ban user from server if trying to massmention or raid
             if (message.MentionedUsers.Count > 8 && !((IGuildUser)message.Author).GuildPermissions.KickMembers == true) await ((IGuildUser)message.Author).BanAsync( 1, "raid or massmention");
             if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos) && !message.HasCharPrefix(prefix, ref argPos)) return;
+
+            var context = new SocketCommandContext(_discord, message);
+            await _commands.ExecuteAsync(context, argPos, _provider);
+
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
@@ -62,12 +66,12 @@ namespace DiscordBot.Services
             }
 
 
-            // log success to the console and exit this method
-            //if (result.IsSuccess)
-            //{
-            //    //Console.WriteLine($"Command [] executed for -> []");
-            //    return;
-            //}
+            //log success to the console and exit this method
+            if (result.IsSuccess)
+            {
+                //Console.WriteLine($"Command [] executed for -> []");
+                return;
+            }
 
 
             // failure scenario, let's let the user know

@@ -34,6 +34,34 @@ namespace DiscordBotV5.Modules.Fun
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
+        [Command("catBomb")]
+        [Summary("Spam the chat with cute kitties")]
+        public async Task CatBomb()
+        {
+            await Context.Message.DeleteAsync();
+
+            int amount = 5;
+
+            string catLocation = $"http://thecatapi.com/api/images/get?format=xml&results_per_page=" + amount + "&type=" + "gif" + "&api_key=MzM0NDcw";
+
+            XmlDocument catXML = new XmlDocument();
+            catXML.Load(catLocation);
+            XmlElement rootCat = catXML.DocumentElement;
+            XmlNodeList urlnodes = rootCat.SelectNodes("//url");
+
+            Random rnd = new Random();
+
+            foreach (XmlNode node in urlnodes)
+            {
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Cat requested by: " + Context.User.Username);
+                embed.WithImageUrl(node.InnerXml);
+                embed.WithColor(new Color(rnd.Next(255), rnd.Next(255), rnd.Next(255)));
+
+                await Context.Channel.SendMessageAsync("", false, embed.Build());
+            }
+        }
+
 
         [Command("dog")]
         [Summary("Post a cute doggo picture")]
@@ -55,6 +83,34 @@ namespace DiscordBotV5.Modules.Fun
             embed.WithColor(new Color(102, 255, 255));
 
             await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("dogbomb")]
+        [Summary("Spam the chat with cute doggos")]
+        public async Task DogBomb()
+        {
+            await Context.Message.DeleteAsync();
+
+            Random rnd = new Random();
+
+            for (int i = 0; i < 5; i++)
+            {
+                var client = new RestClient("https://dog.ceo/api/breeds/image/random");
+                var request = new RestRequest(Method.GET);
+                IRestResponse response = client.Execute(request);
+
+                string dogImgURL = response.Content.Substring(12);
+                dogImgURL = dogImgURL.Substring(0, dogImgURL.IndexOf("\""));
+                dogImgURL = dogImgURL.Replace(@"\", String.Empty);
+
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Dog requested by: " + Context.User.Username);
+                embed.WithImageUrl(dogImgURL);
+                embed.WithColor(new Color(rnd.Next(255), rnd.Next(255), rnd.Next(255)));
+
+                await Context.Channel.SendMessageAsync("", false, embed.Build());
+            }         
+
         }
 
     }

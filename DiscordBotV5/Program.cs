@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using DiscordBot.Services;
 using Newtonsoft.Json;
 using DiscordBotV5.Misc;
+using System.Linq;
 
 namespace DiscordBotV5
 {
