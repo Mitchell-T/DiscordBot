@@ -25,11 +25,12 @@ namespace DiscordBotV5
         {
             _client = new DiscordSocketClient();
 
+            ConfigTools configBuilder = new ConfigTools();
             if (!File.Exists("config.json")){
-                generateNewConfig();
+                configBuilder.generateNewConfig();
                 Environment.Exit(0);
             }
-            _config = BuildConfig();
+            _config = configBuilder.BuildConfig();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
@@ -57,22 +58,6 @@ namespace DiscordBotV5
                 .AddSingleton(_config)
                 // Add additional services here...
                 .BuildServiceProvider();
-        }
-
-        private IConfiguration BuildConfig()
-        {
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json")
-                .Build();
-        }
-
-        private void generateNewConfig()
-        {
-            ConfigTemplate template = new ConfigTemplate();
-            string json = JsonConvert.SerializeObject(template, Formatting.Indented);
-            File.WriteAllText("config.json", json);
-            
         }
 
     }

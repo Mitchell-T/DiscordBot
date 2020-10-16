@@ -17,9 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Modules\AdminModule.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
     <Compile Update="Modules\Audio\AudioModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -32,7 +29,7 @@
     <Compile Update="Modules\Utility\InfoModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="Modules\SuggestionModule.cs">
+    <Compile Update="Modules\Utility\SuggestionModule.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Update="Program.cs">
@@ -61,7 +58,6 @@
   <ItemGroup>
     <Folder Include="Modules\Moderation\Channels\" />
     <Folder Include="Modules\Moderation\Server\" />
-    <Folder Include="Modules\Moderation\Users\" />
   </ItemGroup>
 
 </Project>
