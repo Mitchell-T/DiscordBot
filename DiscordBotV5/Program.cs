@@ -71,7 +71,7 @@ namespace DiscordBotV5
         {
             ConfigTemplate template = new ConfigTemplate();
             string json = JsonConvert.SerializeObject(template, Formatting.Indented);
-            System.IO.File.WriteAllText("config.json", json);
+            File.WriteAllText("config.json", json);
             
         }
 

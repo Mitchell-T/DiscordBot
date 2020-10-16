@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
+using DiscordBotV5.Misc;
 
 namespace DiscordBotV5.Modules.Fun
 {
@@ -29,33 +31,67 @@ namespace DiscordBotV5.Modules.Fun
         public async Task AddQuote(ulong id)
         {
             // Connect to database
-            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=myUserAdmin");
+            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
 
-            //List<Quote> quoteList = 
+            IMongoDatabase database = dbClient.GetDatabase("DiscordBot");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Quotes");
 
-            // Retrieve message from id
-            IMessage message = await Context.Channel.GetMessageAsync(id);
-            // Turn message into object
-            Quote newQuote = new Quote(message.Content, message.Timestamp.DateTime.ToShortDateString(), message.Author.Id.ToString());
-            // 
+            IMessage msg = await Context.Channel.GetMessageAsync(id);
 
-            // Add to JSON
-            string json = JsonConvert.SerializeObject(newQuote, Formatting.Indented);
-            Console.WriteLine(json);
+            QuoteTemplate quote = new QuoteTemplate();
+            quote.date = msg.Timestamp.DateTime;
+            quote.userID = msg.Author.Id.ToString();
+            quote.userName = msg.Author.Username;
+            quote.guild = Context.Guild.Id.ToString();
+            quote.quote = msg.Content;
+
+            BsonDocument quoteBson = new BsonDocument();
+            quoteBson = quote.ToBsonDocument();
+
+            await collection.InsertOneAsync(quoteBson);
+
+            IUserMessage m = await Context.Channel.SendMessageAsync("Quote has been added to the database");
+            const int delay = 3000;
+            await Task.Delay(delay);
+            await m.DeleteAsync();
         }
 
-    }
-
-    public class Quote
-    {
-        public string QuotedText { get; set; }
-        public string Date { get; set; }
-        public string User { get; set; }
-        public Quote(string quotedText, string date, string user)
+        [Command("getQuote")]
+        [Alias("q")]
+        public async Task GetQuote()
         {
-            QuotedText = quotedText;
-            Date = date;
-            User = user;
+            await Context.Message.DeleteAsync();
+
+            // Connect to database and get collection
+            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
+            IMongoDatabase database = dbClient.GetDatabase("DiscordBot");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Quotes");
+
+            var filter = new BsonDocument("guild", Context.Guild.Id.ToString());
+
+            var results = collection.Find(filter).ToList();
+            Random rnd = new Random();
+            BsonDocument randomQuote = results[rnd.Next(results.Count - 1)];
+
+            //string userName = randomQuote.GetValue("userName").ToString();
+            //long quotedGuild = randomQuote.GetValue("guild").ToInt64();
+            string quotedText = randomQuote.GetValue("quote").ToString();
+            long quoteduser = randomQuote.GetValue("userID").ToInt64();
+            DateTime date = (DateTime)randomQuote.GetValue("date");
+
+            IGuildUser messageAuthor = Context.Guild.GetUser((ulong)quoteduser);
+
+            var embed = new EmbedBuilder();
+            embed.WithAuthor(messageAuthor);
+            embed.WithColor(new Color(rnd.Next(255), rnd.Next(255), rnd.Next(255)));
+            embed.WithTimestamp(date);
+            embed.WithDescription($"{quotedText} - **{date.Year}**");
+
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+
+
         }
+
     }
+
 }

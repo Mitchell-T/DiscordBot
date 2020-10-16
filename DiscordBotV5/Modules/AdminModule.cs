@@ -72,7 +72,7 @@ namespace DiscordBotV5.Modules
         public async Task Purge(int amount)
         {
             // get and delete messages
-            IEnumerable<IMessage> messages = await Context.Channel.GetMessagesAsync(amount).FlattenAsync();
+            IEnumerable<IMessage> messages = await Context.Channel.GetMessagesAsync(amount + 1).FlattenAsync();
             await ((ITextChannel)Context.Channel).DeleteMessagesAsync(messages, null);
 
             // visual readout of howmany messages got deleted
