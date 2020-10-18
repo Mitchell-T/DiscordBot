@@ -22,19 +22,14 @@ namespace DiscordBot.Services
             _commands = provider.GetRequiredService<CommandService>();
             _provider = provider;
             _config = provider.GetRequiredService<IConfiguration>();
-
-            _discord.MessageReceived += HandleCommandAsync;
-            _commands.CommandExecuted += OnCommandExecutedAsync;
-
-
         }
 
         public async Task InitializeAsync(IServiceProvider provider)
         {
-            _provider = provider;
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
             // Add additional initialization code here...
-
+            _discord.MessageReceived += HandleCommandAsync;
+            _commands.CommandExecuted += OnCommandExecutedAsync;
         }
 
         private async Task HandleCommandAsync(SocketMessage rawMessage)
@@ -46,7 +41,7 @@ namespace DiscordBot.Services
             int argPos = 0;
 
             // set prefix from config
-            char prefix = Char.Parse(_config["prefix"]);
+            char prefix = char.Parse(_config["prefix"]);
             // Ban user from server if trying to massmention or raid
             if (message.MentionedUsers.Count > 8 && !((IGuildUser)message.Author).GuildPermissions.KickMembers == true) await ((IGuildUser)message.Author).BanAsync( 1, "raid or massmention");
             if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos) && !message.HasCharPrefix(prefix, ref argPos)) return;
@@ -61,21 +56,12 @@ namespace DiscordBot.Services
             // if a command isn't found, log that info to console and exit this method
             if (!command.IsSpecified)
             {
-                Console.WriteLine($"Command failed to execute for [] <-> []!");
+                Console.WriteLine($"Command failed to execute for!");
                 return;
             }
-
-
-            //log success to the console and exit this method
-            if (result.IsSuccess)
-            {
-                //Console.WriteLine($"Command [] executed for -> []");
-                return;
-            }
-
 
             // failure scenario, let's let the user know
-            await context.Channel.SendMessageAsync($"Sorry, ... something went wrong -> []!");
+            await context.Channel.SendMessageAsync($"Sorry, ... something went wrong!");
         }
     }
 }

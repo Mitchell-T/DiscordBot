@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DiscordBotV5.Misc
+﻿namespace DiscordBotV5.Misc.Templates
 {
-    class ConfigTemplate
+    class Config
     {
         public string token = "insert token here";
         public string prefix = "insert prefix here";

@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using System.Linq;
 using System;
-using Discord.WebSocket;
-using System.Collections.Generic;
 using System.Xml;
 using RestSharp;
 

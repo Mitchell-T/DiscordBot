@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DiscordBotV5.Misc.Templates;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace DiscordBotV5.Misc
 {
@@ -19,7 +18,7 @@ namespace DiscordBotV5.Misc
 
         public void GenerateNewConfig()
         {
-            ConfigTemplate template = new ConfigTemplate();
+            Config template = new Config();
             string json = JsonConvert.SerializeObject(template, Formatting.Indented);
             File.WriteAllText("config.json", json);
         }

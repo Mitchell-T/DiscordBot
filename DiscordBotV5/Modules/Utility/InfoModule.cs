@@ -6,18 +6,17 @@ using System;
 using Discord.WebSocket;
 using DiscordBotV5.Misc;
 using System.Collections.Generic;
-using DiscordBot.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiscordBot.Modules.Utility
 {
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
-        private readonly CommandService commands;
+        private readonly CommandService _commands;
 
         public InfoModule(IServiceProvider services)
         {
-            commands = services.GetRequiredService<CommandService>();
+            _commands = services.GetRequiredService<CommandService>();
         }
 
 
@@ -152,13 +151,15 @@ namespace DiscordBot.Modules.Utility
         [Summary("Shows a list of all commands and their description")]
         public async Task Help()
         {
-            List<CommandInfo> commandList = commands.Commands.ToList();
+            List<CommandInfo> commandList = _commands.Commands.ToList();
             EmbedBuilder embed = new EmbedBuilder();
 
             foreach (CommandInfo command in commandList)
             {
                 embed.AddField(command.Name, command.Summary ?? "No description available\n");
             }
+
+            
 
             await ReplyAsync("Here's a list of my commands: ", false, embed.Build());
         }

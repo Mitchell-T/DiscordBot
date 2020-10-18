@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace DiscordBotV5.Misc
+namespace DiscordBotV5.Misc.Templates
 {
-    class QuoteTemplate
+    class Quote
     {
 
         public string userName;
@@ -12,7 +10,5 @@ namespace DiscordBotV5.Misc
         public string userID;
         public DateTime date;
         public string guild;
-
-
     }
 }

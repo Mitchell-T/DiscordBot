@@ -11,7 +11,9 @@ using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
-using DiscordBotV5.Misc;
+using DiscordBotV5.Misc.Templates;
+using System.Diagnostics;
+using DiscordBotV5.Services;
 
 namespace DiscordBotV5.Modules.Fun
 {
@@ -19,26 +21,25 @@ namespace DiscordBotV5.Modules.Fun
     {
         private readonly IConfiguration _config;
         private IServiceProvider _service;
+        private readonly DatabaseService _db;
 
         public QuoteModule(IServiceProvider service)
         {
             _service = service;
             _config = service.GetRequiredService<IConfiguration>();
+            _db = service.GetRequiredService<DatabaseService>();
         }
 
         [Command("addquote")]
         [Alias("aq")]
         public async Task AddQuote(ulong id)
         {
-            // Connect to database
-            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
-
-            IMongoDatabase database = dbClient.GetDatabase("DiscordBot");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Quotes");
+            // Get collection from database
+            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
 
             IMessage msg = await Context.Channel.GetMessageAsync(id);
 
-            QuoteTemplate quote = new QuoteTemplate();
+            Quote quote = new Quote();
             quote.date = msg.Timestamp.DateTime;
             quote.userID = msg.Author.Id.ToString();
             quote.userName = msg.Author.Username;
@@ -48,6 +49,7 @@ namespace DiscordBotV5.Modules.Fun
             BsonDocument quoteBson = new BsonDocument();
             quoteBson = quote.ToBsonDocument();
 
+            // Add quote to the database
             await collection.InsertOneAsync(quoteBson);
 
             IUserMessage m = await Context.Channel.SendMessageAsync("Quote has been added to the database");
@@ -64,10 +66,8 @@ namespace DiscordBotV5.Modules.Fun
         {
             await Context.Message.DeleteAsync();
 
-            // Connect to database and get collection
-            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
-            IMongoDatabase database = dbClient.GetDatabase("DiscordBot");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Quotes");
+            // Get collection from database
+            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
 
             var filter = new BsonDocument("guild", Context.Guild.Id.ToString());
 
@@ -108,10 +108,8 @@ namespace DiscordBotV5.Modules.Fun
         {
             await Context.Message.DeleteAsync();
 
-            // Connect to database and get collection
-            MongoClient dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
-            IMongoDatabase database = dbClient.GetDatabase("DiscordBot");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Quotes");
+            // Get collection from database
+            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
 
             var filter = new BsonDocument("guild", Context.Guild.Id.ToString());
 
