@@ -28,7 +28,7 @@ namespace DiscordBotV5.Services
             database = _dbClient.GetDatabase("DiscordBot");
         }
 
-        public IMongoCollection<BsonDocument> getCollection(string collectionName)
+        public IMongoCollection<BsonDocument> GetCollection(string collectionName)
         {
             return database.GetCollection<BsonDocument>(collectionName);
         }

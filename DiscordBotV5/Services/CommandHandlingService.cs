@@ -14,7 +14,7 @@ namespace DiscordBot.Services
         private readonly DiscordSocketClient _discord;
         private readonly CommandService _commands;
         private readonly IConfiguration _config;
-        private IServiceProvider _provider;
+        private readonly IServiceProvider _provider;
 
         public CommandHandlingService(IServiceProvider provider)
         {
@@ -56,12 +56,18 @@ namespace DiscordBot.Services
             // if a command isn't found, log that info to console and exit this method
             if (!command.IsSpecified)
             {
-                Console.WriteLine($"Command failed to execute for!");
+                Console.WriteLine($"Command failed to execute!");
+                return;
+            }
+
+            if (result.IsSuccess)
+            {
                 return;
             }
 
             // failure scenario, let's let the user know
-            await context.Channel.SendMessageAsync($"Sorry, ... something went wrong!");
+            await context.Channel.SendMessageAsync($"Sorry, {context.Message.Author.Mention} something went wrong!\n" +
+                $"{result.ErrorReason}");
         }
     }
 }

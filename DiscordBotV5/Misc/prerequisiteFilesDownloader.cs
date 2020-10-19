@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace DiscordBotV5.Misc
 {
-    public static class prerequisiteFilesDownloader
+    public static class PrerequisiteFilesDownloader
     {
 
         public static void StartupCheck()

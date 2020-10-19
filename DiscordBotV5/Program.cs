@@ -28,7 +28,7 @@ namespace DiscordBotV5
             _config = configBuilder.Build();
 
             // Download required files from my server
-            prerequisiteFilesDownloader.StartupCheck();
+            PrerequisiteFilesDownloader.StartupCheck();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
@@ -68,7 +68,7 @@ namespace DiscordBotV5
 
         private async Task OnClientReady()
         {
-            await _client.SetActivityAsync(new Game($"for commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
+            await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
         }
 
     }

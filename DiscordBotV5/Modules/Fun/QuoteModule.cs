@@ -20,7 +20,7 @@ namespace DiscordBotV5.Modules.Fun
     public class QuoteModule : ModuleBase<SocketCommandContext>
     {
         private readonly IConfiguration _config;
-        private IServiceProvider _service;
+        private readonly IServiceProvider _service;
         private readonly DatabaseService _db;
 
         public QuoteModule(IServiceProvider service)
@@ -35,16 +35,24 @@ namespace DiscordBotV5.Modules.Fun
         public async Task AddQuote(ulong id)
         {
             // Get collection from database
-            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
+            IMongoCollection<BsonDocument> collection = _db.GetCollection("Quotes");
 
             IMessage msg = await Context.Channel.GetMessageAsync(id);
 
-            Quote quote = new Quote();
-            quote.date = msg.Timestamp.DateTime;
-            quote.userID = msg.Author.Id.ToString();
-            quote.userName = msg.Author.Username;
-            quote.guild = Context.Guild.Id.ToString();
-            quote.quote = msg.Content;
+            if (msg == null)
+            {
+
+            }
+
+            Quote quote = new Quote()
+            {
+                date = msg.Timestamp.DateTime,
+                userID = msg.Author.Id.ToString(),
+                userName = msg.Author.Username,
+                guild = Context.Guild.Id.ToString(),
+                quote = msg.Content
+            };
+            
 
             BsonDocument quoteBson = new BsonDocument();
             quoteBson = quote.ToBsonDocument();
@@ -67,7 +75,7 @@ namespace DiscordBotV5.Modules.Fun
             await Context.Message.DeleteAsync();
 
             // Get collection from database
-            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
+            IMongoCollection<BsonDocument> collection = _db.GetCollection("Quotes");
 
             var filter = new BsonDocument("guild", Context.Guild.Id.ToString());
 
@@ -109,7 +117,7 @@ namespace DiscordBotV5.Modules.Fun
             await Context.Message.DeleteAsync();
 
             // Get collection from database
-            IMongoCollection<BsonDocument> collection = _db.getCollection("Quotes");
+            IMongoCollection<BsonDocument> collection = _db.GetCollection("Quotes");
 
             var filter = new BsonDocument("guild", Context.Guild.Id.ToString());
 
