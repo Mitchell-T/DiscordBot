@@ -14,10 +14,6 @@ namespace Deprived.Modules
         [Command("userinfo")]
         public async Task Info(SocketGuildUser user = null)
         {
-            if (user != null && string.IsNullOrEmpty(user.Nickname))
-            {
-                await Context.Channel.SendMessageAsync("Invalid user!");
-            }
             user ??= (SocketGuildUser)Context.User;
 
             Console.WriteLine(((SocketGuildUser)Context.User).Nickname is null);

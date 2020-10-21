@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using DiscordBotV5.Misc;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace DiscordBot.Modules.Utility
 {
@@ -18,7 +19,6 @@ namespace DiscordBot.Modules.Utility
         {
             _commands = services.GetRequiredService<CommandService>();
         }
-
 
         [Command("info")]
         [Summary("Show info about the bot")]
@@ -102,12 +102,23 @@ namespace DiscordBot.Modules.Utility
                 isOwner = "false";
             }
 
-            SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(a => a.JoinedAt).ToArray();
+            SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(member => member.JoinedAt).ToArray();
 
             // Remove bots from array
             sortedMembers = sortedMembers.Where(val => val.IsBot != true).ToArray();
 
             int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
+            //DateTimeFormatInfo mfi = new DateTimeFormatInfo();
+
+            //DateTimeOffset createdAt = userToCheck.CreatedAt;
+            //DateTimeOffset joinedAt = (DateTimeOffset)userToCheck.JoinedAt;
+            //string createdOn = $"{mfi.GetMonthName(createdAt.Month)} {createdAt.Day}th {createdAt.Year}, {createdAt.ToString("hh:mm:ss")} - {(int)(DateTime.Now - createdAt).TotalDays} days";
+            //string boostingSince = "Not Boosting";
+
+            //if (userToCheck.PremiumSince != null)
+            //{
+            //    ((DateTimeOffset)userToCheck.PremiumSince).ToString("mm/dd/yy");
+            //}
 
             var embed = new EmbedBuilder();
             embed.WithTitle("WhoIs Lookup for : " + userToCheck.Username);
