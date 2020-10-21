@@ -58,10 +58,27 @@ public class AudioService
 
     private Process CreateProcess(string path)
     {
+        switch (Environment.OSVersion.Platform)
+        {
+            case PlatformID.Unix:
+                return CreateUnixProcess(path);
 
+        }
         return Process.Start(new ProcessStartInfo
         {
-            FileName = "cmd.exe",
+            FileName = "cmd",
+            Arguments = $"/C youtube-dl -o - {path} | ffmpeg -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            CreateNoWindow = false
+        }); ;
+    }
+
+    private Process CreateUnixProcess(string path)
+    {
+        return Process.Start(new ProcessStartInfo
+        {
+            FileName = "/bin/bash",
             Arguments = $"/C youtube-dl -o - {path} | ffmpeg -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1",
             UseShellExecute = false,
             RedirectStandardOutput = true,

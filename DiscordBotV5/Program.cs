@@ -35,6 +35,12 @@ namespace DiscordBotV5
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
             services.GetRequiredService<DatabaseService>().Initialize();
 
+            if (_config["token"] == "insert token here")
+            {
+                Console.WriteLine("NO TOKEN SET IN CONFIG FILE");
+                Environment.Exit(0);
+            }
+
             // log in the bot with the supplied bot token
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
