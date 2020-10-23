@@ -14,10 +14,12 @@ namespace DiscordBot.Modules.Utility
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commands;
+        private readonly DiscordSocketClient _client;
 
         public InfoModule(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
+            _client = services.GetRequiredService<DiscordSocketClient>();
         }
 
         [Command("info")]
@@ -80,6 +82,21 @@ namespace DiscordBot.Modules.Utility
             embed.AddField("Members", Context.Guild.MemberCount, true);
             embed.AddField("Humans", humanCount, true);
             embed.AddField("Bots", botCount, true);
+            await Context.Channel.SendMessageAsync("", false, embed.Build());
+        }
+
+        [Command("gmembercount")]
+        [Summary("Show howmany members the bot is in")]
+        public async Task GMemberCount()
+        {
+            int totalMembers = 0;
+            foreach (SocketGuild guild in _client.Guilds)
+            {
+                totalMembers += guild.MemberCount;
+            }
+
+            var embed = new EmbedBuilder();
+            embed.AddField("Members", totalMembers, true);
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
