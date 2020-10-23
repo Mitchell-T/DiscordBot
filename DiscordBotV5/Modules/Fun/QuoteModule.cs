@@ -28,12 +28,30 @@ namespace DiscordBotV5.Modules.Fun
             _service = service;
             _config = service.GetRequiredService<IConfiguration>();
             _db = service.GetRequiredService<DatabaseService>();
+
+
         }
 
         [Command("addquote")]
         [Alias("aq")]
         public async Task AddQuote(ulong id)
         {
+
+            IMongoCollection<BsonDocument> collection2 = _db.GetCollection("ServerSettings");
+            ServerPreference preference = new ServerPreference()
+            {
+                guild = (long)Context.Guild.Id
+
+            };
+
+            BsonDocument preferenceBson = new BsonDocument();
+            preferenceBson = preference.ToBsonDocument();
+
+            // Add quote to the database
+            await collection2.InsertOneAsync(preferenceBson);
+
+
+
             // Get collection from database
             IMongoCollection<BsonDocument> collection = _db.GetCollection("Quotes");
 
@@ -50,7 +68,8 @@ namespace DiscordBotV5.Modules.Fun
                 userID = msg.Author.Id.ToString(),
                 userName = msg.Author.Username,
                 guild = Context.Guild.Id.ToString(),
-                quote = msg.Content
+                quote = msg.Content,
+                quotingUser = Context.User.Id.ToString()
             };
             
 
