@@ -4,11 +4,19 @@ using Discord.Commands;
 using System;
 using System.Xml;
 using RestSharp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DiscordBotV5.Modules.Fun
 {
     public class AnimalModule : ModuleBase<SocketCommandContext>
     {
+        private readonly IConfiguration _config;
+
+        public AnimalModule(IServiceProvider provider)
+        {
+            _config = provider.GetRequiredService<IConfiguration>();
+        }
 
         [Command("cat")]
         [Summary("Post a cute cat picture")]
@@ -16,7 +24,7 @@ namespace DiscordBotV5.Modules.Fun
         {
             await Context.Message.DeleteAsync();
 
-            string catLocation = "http://thecatapi.com/api/images/get?format=xml&results_per_page=1&type=" + catType + "&api_key=MzM0NDcw";
+            string catLocation = "http://thecatapi.com/api/images/get?format=xml&results_per_page=1&type=" + catType + "&api_key=" + _config["TheCatApiKey"];
              
             XmlDocument catXML = new XmlDocument();
             catXML.Load(catLocation);
@@ -39,7 +47,7 @@ namespace DiscordBotV5.Modules.Fun
 
             int amount = 5;
 
-            string catLocation = $"http://thecatapi.com/api/images/get?format=xml&results_per_page=" + amount + "&type=" + "gif" + "&api_key=MzM0NDcw";
+            string catLocation = $"http://thecatapi.com/api/images/get?format=xml&results_per_page=" + amount + "&type=" + "gif" + "&api_key=" + _config["TheCatApiKey"];
 
             XmlDocument catXML = new XmlDocument();
             catXML.Load(catLocation);
