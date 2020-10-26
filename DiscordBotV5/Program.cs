@@ -19,6 +19,7 @@ namespace DiscordBotV5
 
         private DiscordSocketClient _client;
         private IConfiguration _config;
+        private LavaNode _lavaNode;
 
         public async Task MainAsync()
         {
@@ -82,10 +83,10 @@ namespace DiscordBotV5
             // set the bots status
             await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
-            //if (!_instanceOfLavaNode.IsConnected)
-            //{
-            //    _instanceOfLavaNode.ConnectAsync();
-            //}
+            if (!_lavaNode.IsConnected)
+            {
+                await _lavaNode.ConnectAsync();
+            }
         }
 
     }
