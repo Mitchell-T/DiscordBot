@@ -33,7 +33,97 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle("Neko");
+            embed.WithAuthor(Context.User);
+            embed.WithImageUrl(req.ImageUrl);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("gif")]
+        public async Task NekoGif()
+        {
+            Request req = await _nekoClient.Image_v3.NekoGif();
+
+            if (!req.Success)
+            {
+                await ReplyAsync("Sorry something went wrong, If this happens more than a few times please message my developer");
+                return;
+            }
+
+            await Context.Message.DeleteAsync();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithAuthor(Context.User);
+            embed.WithImageUrl(req.ImageUrl);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("holo")]
+        public async Task NekoHolo()
+        {
+            Request req = await _nekoClient.Image_v3.Holo();
+
+            if (!req.Success)
+            {
+                await ReplyAsync("Sorry something went wrong, If this happens more than a few times please message my developer");
+                return;
+            }
+
+            await Context.Message.DeleteAsync();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithAuthor(Context.User);
+            embed.WithImageUrl(req.ImageUrl);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("fox")]
+        public async Task NekoFox()
+        {
+            Request req = await _nekoClient.Image_v3.Fox();
+
+            if (!req.Success)
+            {
+                await ReplyAsync("Sorry something went wrong, If this happens more than a few times please message my developer");
+                return;
+            }
+
+            await Context.Message.DeleteAsync();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithAuthor(Context.User);
+            embed.WithImageUrl(req.ImageUrl);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("waifu")]
+        public async Task NekoWaifu()
+        {
+            Request req = await _nekoClient.Image_v3.Waifu();
+
+            if (!req.Success)
+            {
+                await ReplyAsync("Sorry something went wrong, If this happens more than a few times please message my developer");
+                return;
+            }
+
+            await Context.Message.DeleteAsync();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithAuthor(Context.User);
+            embed.WithImageUrl(req.ImageUrl);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("wallpaper")]
+        public async Task NekoWallpaper()
+        {
+            Request req = await _nekoClient.Image_v3.Wallpaper();
+
+            if (!req.Success)
+            {
+                await ReplyAsync("Sorry something went wrong, If this happens more than a few times please message my developer");
+                return;
+            }
+
+            await Context.Message.DeleteAsync();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithAuthor(Context.User);
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
