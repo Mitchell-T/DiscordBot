@@ -10,6 +10,8 @@ using DiscordBotV5.Misc;
 using DiscordBotV5.Services;
 using Victoria;
 using Discord.Addons.Interactive;
+using System.Threading;
+using System.Net;
 
 namespace DiscordBotV5
 {
@@ -37,6 +39,8 @@ namespace DiscordBotV5
             services.GetRequiredService<LogService>();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
             services.GetRequiredService<DatabaseService>().Initialize();
+
+            _lavaNode = services.GetRequiredService<LavaNode>();
 
             if (_config["token"] == "insert token here")
             {
@@ -66,6 +70,7 @@ namespace DiscordBotV5
                 .AddLavaNode(x =>
                 {
                     x.SelfDeaf = false;
+                    x.Authorization = "doesntMatterisLocal";
                 })
                 // Logging
                 .AddLogging()
@@ -85,10 +90,11 @@ namespace DiscordBotV5
             // set the bots status
             await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
-            //if (!_lavaNode.IsConnected)
-            //{
-            //    await _lavaNode.ConnectAsync();
-            //}
+            if (!_lavaNode.IsConnected)
+            {
+                 await _lavaNode.ConnectAsync();
+            }
+            Console.WriteLine(_lavaNode.IsConnected);
         }
 
     }
