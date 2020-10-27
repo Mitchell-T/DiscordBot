@@ -174,22 +174,5 @@ namespace DiscordBot.Modules.Utility
             embed.WithDescription($":ping_pong: pong!, my ping is currently {ping}");
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
-
-        [Command("help")]
-        [Summary("Shows a list of all commands and their description")]
-        public async Task Help()
-        {
-            List<CommandInfo> commandList = _commands.Commands.ToList();
-            EmbedBuilder embed = new EmbedBuilder();
-
-            foreach (CommandInfo command in commandList)
-            {
-                embed.AddField(command.Name, command.Summary ?? "No description available\n");
-            }
-
-            
-
-            await ReplyAsync("Here's a list of my commands: ", false, embed.Build());
-        }
     }
 }

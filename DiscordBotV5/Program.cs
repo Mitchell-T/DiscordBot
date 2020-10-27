@@ -9,6 +9,7 @@ using DiscordBot.Services;
 using DiscordBotV5.Misc;
 using DiscordBotV5.Services;
 using Victoria;
+using Discord.Addons.Interactive;
 
 namespace DiscordBotV5
 {
@@ -59,6 +60,7 @@ namespace DiscordBotV5
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton<InteractiveService>()
                 // Audio
                 .AddSingleton<AudioService>()
                 .AddLavaNode(x =>
@@ -83,10 +85,10 @@ namespace DiscordBotV5
             // set the bots status
             await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
-            if (!_lavaNode.IsConnected)
-            {
-                await _lavaNode.ConnectAsync();
-            }
+            //if (!_lavaNode.IsConnected)
+            //{
+            //    await _lavaNode.ConnectAsync();
+            //}
         }
 
     }
