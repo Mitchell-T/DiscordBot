@@ -43,7 +43,7 @@ namespace DiscordBot.Services
             // set prefix from config
             char prefix = char.Parse(_config["prefix"]);
             // Ban user from server if trying to massmention or raid
-            if (message.MentionedUsers.Count > 8 && !((IGuildUser)message.Author).GuildPermissions.KickMembers == true) await ((IGuildUser)message.Author).BanAsync( 1, "raid or massmention");
+            if (message.MentionedUsers.Count > 13 && !((IGuildUser)message.Author).GuildPermissions.KickMembers == true) await ((message.Author as IGuildUser)).BanAsync( 1, "raid or massmention");
             if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos) && !message.HasCharPrefix(prefix, ref argPos)) return;
 
             var context = new SocketCommandContext(_discord, message);

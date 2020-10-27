@@ -32,6 +32,7 @@ namespace Deprived.Modules
             SocketGuildUser[] sortedMembers = (Context.Guild as SocketGuild).Users.ToArray().OrderBy(member => member.JoinedAt).ToArray();
             sortedMembers = sortedMembers.Where(member => member.IsBot != true).ToArray();
         }
+
     }
 }
  
