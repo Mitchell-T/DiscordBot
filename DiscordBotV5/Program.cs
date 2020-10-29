@@ -94,13 +94,13 @@ namespace DiscordBotV5
         private async Task OnClientReady()
         {
             // set the bots status
-            //await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
+            await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
-            //if (!_lavaNode.IsConnected)
-            //{
-            //     await _lavaNode.ConnectAsync();
-            //}
-            //Console.WriteLine(_lavaNode.IsConnected);
+            if (!_lavaNode.IsConnected)
+            {
+                await _lavaNode.ConnectAsync();
+            }
+            Console.WriteLine(_lavaNode.IsConnected);
 
             _ = Task.Run(async () =>
               {
