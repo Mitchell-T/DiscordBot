@@ -12,6 +12,7 @@ using Victoria;
 using Discord.Addons.Interactive;
 using System.Threading;
 using System.Net;
+using System.Linq;
 
 namespace DiscordBotV5
 {
@@ -26,6 +27,11 @@ namespace DiscordBotV5
 
         public async Task MainAsync()
         {
+            //DiscordSocketConfig socketConfig = new DiscordSocketConfig()
+            //{
+
+            //}
+
             _client = new DiscordSocketClient();
 
             // build or create config
@@ -88,13 +94,22 @@ namespace DiscordBotV5
         private async Task OnClientReady()
         {
             // set the bots status
-            await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
+            //await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
-            if (!_lavaNode.IsConnected)
-            {
-                 await _lavaNode.ConnectAsync();
-            }
-            Console.WriteLine(_lavaNode.IsConnected);
+            //if (!_lavaNode.IsConnected)
+            //{
+            //     await _lavaNode.ConnectAsync();
+            //}
+            //Console.WriteLine(_lavaNode.IsConnected);
+
+            _ = Task.Run(async () =>
+              {
+                  Console.WriteLine("loading guilds....");
+                  await Task.WhenAll(_client.Guilds.Select(g => g.DownloadUsersAsync()));
+                  int count = _client.Guilds.Sum(g => g.Users.Count);
+                  Console.WriteLine($"done loading guilds, cached {count} users");
+              });
+            
         }
 
     }
