@@ -102,6 +102,8 @@ namespace DiscordBotV5
             }
             Console.WriteLine(_lavaNode.IsConnected);
 
+
+            // (temp?) fix for discord intent changes
             _ = Task.Run(async () =>
               {
                   Console.WriteLine("loading guilds....");
