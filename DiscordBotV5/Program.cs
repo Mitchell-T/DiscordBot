@@ -93,7 +93,7 @@ namespace DiscordBotV5
 
         private async Task OnClientReady()
         {
-            // set the bots status
+            // Set the bots status
             await _client.SetActivityAsync(new Game($"commands in {_client.Guilds.Count} guilds || $help", ActivityType.Listening, ActivityProperties.None));
 
             if (!_lavaNode.IsConnected)
@@ -103,7 +103,7 @@ namespace DiscordBotV5
             Console.WriteLine(_lavaNode.IsConnected);
 
 
-            // (temp?) fix for discord intent changes
+            // Cache guild members upon startup
             _ = Task.Run(async () =>
               {
                   Console.WriteLine("loading guilds....");
