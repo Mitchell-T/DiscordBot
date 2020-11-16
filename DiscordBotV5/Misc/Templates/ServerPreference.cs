@@ -16,6 +16,7 @@ namespace DiscordBotV5.Misc.Templates
         public long suggestionChannel = 0;
         // Quotes
         public bool quotesEnabled = false;
+        public long quoteChannel = 0;
         // Discord status checker
         public bool statusCheckEnabled = false;
         public int statusCheckLevel = 0;
@@ -23,6 +24,13 @@ namespace DiscordBotV5.Misc.Templates
         public bool musicEnabled = true;
         public bool onlyInMusicChannel = false;
         public long musicChannel = 0;
+        // Prefix
+        public string prefix = "";
+        // Welcome messages
+        public bool welcomeEnabled = false;
+        public long welcomeChannel = 0;
+        // Chat filter
+        public bool chatFilterEnabled = false;
 
     }
 }
