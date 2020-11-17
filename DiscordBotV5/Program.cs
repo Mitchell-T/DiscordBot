@@ -45,6 +45,8 @@ namespace DiscordBotV5
             services.GetRequiredService<LogService>();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
             services.GetRequiredService<DatabaseService>().Initialize();
+            services.GetRequiredService<ServerPreferenceService>().Initialize();
+            
 
             _lavaNode = services.GetRequiredService<LavaNode>();
 
@@ -85,6 +87,10 @@ namespace DiscordBotV5
                 .AddSingleton(_config)
                 // Database
                 .AddSingleton<DatabaseService>()
+                // Server preferences
+                .AddSingleton<ServerPreferenceService>()
+                // Server join handler
+                .AddSingleton<BotJoinHandlingService>()
                 // Add additional services here...
 
                 // DONE
