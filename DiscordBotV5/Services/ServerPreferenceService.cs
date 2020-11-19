@@ -23,11 +23,11 @@ namespace DiscordBotV5.Services
 
         public void Initialize()
         {
-            PopulateOnStartup();
+            Populate();
         }
 
         // Populate the preferences dictionary when starting the bot
-        public void PopulateOnStartup()
+        public void Populate()
         {
             IMongoCollection<BsonDocument> collection = _dbService.GetCollection("ServerSettings");
 
@@ -39,15 +39,13 @@ namespace DiscordBotV5.Services
 
                 _preferences.Add(preference.guild, preference);
             }
-
-            Console.WriteLine(_preferences.Count);
         }
 
 
         public void ResetCache()
         {
             _preferences.Clear();
-            PopulateOnStartup();
+            Populate();
         }
 
         public void UpdatePreferenceCache(Int64 guildID)

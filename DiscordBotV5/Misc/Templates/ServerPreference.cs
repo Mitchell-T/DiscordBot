@@ -6,6 +6,7 @@ using System.Text;
 
 namespace DiscordBotV5.Misc.Templates
 {
+    [BsonIgnoreExtraElements]
     class ServerPreference
     {
         // Guild id
