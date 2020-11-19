@@ -21,4 +21,8 @@
     <PackageReference Include="Victoria" Version="5.1.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Modules\BotManagement\" />
+  </ItemGroup>
+
 </Project>
