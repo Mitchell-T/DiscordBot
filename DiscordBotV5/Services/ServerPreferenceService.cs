@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DiscordBotV5.Services
@@ -53,7 +54,7 @@ namespace DiscordBotV5.Services
 
         }
 
-        public void OnServerJoin(SocketGuild guild)
+        public void CheckPreferenceStatus(SocketGuild guild)
         {
             IMongoCollection<BsonDocument> collection = _dbService.GetCollection("ServerSettings");
 

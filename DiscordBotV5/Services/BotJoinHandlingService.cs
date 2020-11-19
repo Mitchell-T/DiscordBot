@@ -28,7 +28,7 @@ namespace DiscordBotV5.Services
 
         public async Task HandleJoinAsync(SocketGuild guild)
         {
-            _preferences.OnServerJoin(guild);
+            _preferences.CheckPreferenceStatus(guild);
         }
     }
 
