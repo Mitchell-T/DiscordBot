@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBotV5.Modules.BotManagement
 {
+    [RequireOwner]
     public class ManagePreferenceModule : ModuleBase<SocketCommandContext>
     {
         private ServerPreferenceService _preferences;
