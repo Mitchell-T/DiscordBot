@@ -10,6 +10,8 @@ using Discord;
 
 namespace DiscordBotV5.Modules.Fun
 {
+    [Name("Neko Actions")]
+    [Summary("Various neko actions from nekos.life")]
     public class NekoActionsModule : ModuleBase<SocketCommandContext>
     {
         NekoClient _nekoClient;

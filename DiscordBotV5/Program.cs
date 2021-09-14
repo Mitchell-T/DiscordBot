@@ -9,10 +9,11 @@ using DiscordBot.Services;
 using DiscordBotV5.Misc;
 using DiscordBotV5.Services;
 using Victoria;
-using Discord.Addons.Interactive;
 using System.Threading;
 using System.Net;
 using System.Linq;
+using Interactivity;
+using DiscordBotV5.Misc.TypeReaders;
 
 namespace DiscordBotV5
 {
@@ -32,7 +33,13 @@ namespace DiscordBotV5
 
             //}
 
-            _client = new DiscordSocketClient();
+            _client = new DiscordSocketClient(new DiscordSocketConfig
+            {
+                AlwaysDownloadUsers = true,
+                MessageCacheSize = 10000,
+                GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildPresences,
+                LogLevel = LogSeverity.Info
+            });
 
             // build or create config
             ConfigTools configBuilder = new ConfigTools();
@@ -67,12 +74,24 @@ namespace DiscordBotV5
 
         private IServiceProvider ConfigureServices()
         {
+            var commandService = new CommandService(new CommandServiceConfig
+            {
+                LogLevel = LogSeverity.Error,
+                DefaultRunMode = RunMode.Async,
+                CaseSensitiveCommands = false,
+                IgnoreExtraArgs = false,
+            });
+
             return new ServiceCollection()
                 // Base
                 .AddSingleton(_client)
-                .AddSingleton<CommandService>()
+                //.AddSingleton<CommandService>()
+                .AddSingleton(services =>
+                {
+                    commandService.AddTypeReader<ModuleInfo>(new ModuleTypeReader());
+                    return commandService;
+                })
                 .AddSingleton<CommandHandlingService>()
-                .AddSingleton<InteractiveService>()
                 // Audio
                 .AddSingleton<AudioService>()
                 .AddLavaNode(x =>
@@ -92,7 +111,8 @@ namespace DiscordBotV5
                 // Server join handler
                 .AddSingleton<BotJoinHandlingService>()
                 // Add additional services here...
-
+                .AddSingleton<InteractivityService>()
+                .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
                 // DONE
                 .BuildServiceProvider();
         }

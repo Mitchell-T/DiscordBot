@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DiscordBotV5.Modules.Fun
 {
+    [Name("Animals")]
+    [Summary("Post pictures of cute animals")]
     public class AnimalModule : ModuleBase<SocketCommandContext>
     {
         private readonly IConfiguration _config;

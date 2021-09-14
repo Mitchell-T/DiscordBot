@@ -9,10 +9,12 @@ using System.Xml;
 
 namespace DiscordBotV5.Modules.Fun
 {
+    [Name("Magic 8 Ball")]
+    [Summary("Various magic 8-Ball commands")]
     public class MagicEightBallModule : ModuleBase<SocketCommandContext>
     {
         [Command("8ball")]
-        [Alias("eightball", "8b")]
+        [Alias("eightball", "8b", "8-ball", "8-b")]
         [Summary("Ask 8Ball a question")]
         public async Task EightBall([Remainder] string question = "")
         {

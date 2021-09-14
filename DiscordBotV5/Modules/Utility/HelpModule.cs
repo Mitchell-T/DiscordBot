@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using DiscordBot.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,45 +8,138 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using DiscordBotV5.Services.Help;
+using Interactivity;
+using DiscordBotV5.Services.Attributes;
+using Interactivity.Pagination;
 
 namespace DiscordBotV5.Modules.Utility
 {
-    public class HelpModule : InteractiveBase<SocketCommandContext>
+    [Name("Help")]
+    [Summary("bot handbook")]
+    public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commands;
+        private readonly InteractivityService _interactivity;
 
         public HelpModule(IServiceProvider provider)
         {
             _commands = provider.GetRequiredService<CommandService>();
+            _interactivity = provider.GetRequiredService<InteractivityService>();
         }
 
+        [Command("Help", RunMode = RunMode.Async)]
+        [Summary("all my commands")]
+        public async Task helpAsync()
+        {
+            var modules = _commands.Modules;
+            var pages = new List<PageBuilder>();
+
+            foreach (var module in modules)
+            {
+                var pageFields = new List<EmbedFieldBuilder>();
+
+                foreach(CommandInfo command in module.Commands)
+                {
+                    EmbedFieldBuilder embedField = new EmbedFieldBuilder();
+                    embedField.WithName(HelpUtilities.GetCommandUsage(command));
+                    embedField.WithValue(command.Summary ?? "no information given");
+                    pageFields.Add(embedField);
+                }
+
+                if(pageFields.Count <= 25)
+                {
+                    PageBuilder page = new PageBuilder();
+                    page.WithTitle(module.Name);
+                    page.WithFields(pageFields);
+                    pages.Add(page);
+                }
+                else
+                {
+                    while(pageFields.Count > 0)
+                    {
+                        PageBuilder page = new PageBuilder();
+                        page.WithTitle(module.Name);
+                        page.WithFields(pageFields.Take(25));
+                        pages.Add(page);
+                        if(pageFields.Count > 25)
+                        {
+                            pageFields.RemoveRange(0, 24);
+                        }
+                        else
+                        {
+                            pageFields.Clear();
+                        }
+                    }
+                }
+
+                
+            }
+            var paginator = new StaticPaginatorBuilder()
+                .WithUsers(Context.User)
+                .WithPages(pages)
+                .WithFooter(PaginatorFooter.PageNumber | PaginatorFooter.Users)
+                .WithDefaultEmotes()
+                .Build();
+
+            await _interactivity.SendPaginatorAsync(paginator, Context.Channel, TimeSpan.FromMinutes(2));
+        }
 
         [Command("help")]
-        [Summary("Shows a list of all commands and their description")]
-        public async Task Help()
+        [Summary("Module specific commands")]
+        public async Task Help(ModuleInfo module)
         {
-            List<CommandInfo> commandList = _commands.Commands.ToList();
-            EmbedBuilder embed = new EmbedBuilder();
+            var pages = new List<PageBuilder>();
+            var pageFields = new List<EmbedFieldBuilder>();
 
-            foreach (CommandInfo command in commandList)
+            foreach (CommandInfo command in module.Commands)
             {
-                embed.AddField(command.Name, command.Summary ?? "No description available\n");
+                EmbedFieldBuilder embedField = new EmbedFieldBuilder();
+                embedField.WithName(HelpUtilities.GetCommandUsage(command));
+                embedField.WithValue(command.Summary ?? "no information given");
+                pageFields.Add(embedField);
             }
 
+            if (pageFields.Count <= 25)
+            {
+                PageBuilder page = new PageBuilder();
+                page.WithTitle(module.Name);
+                page.WithFields(pageFields);
+                pages.Add(page);
 
+                var builder = new EmbedBuilder();
+                builder.WithTitle(module.Name);
+                builder.WithFields(pageFields);
+                await ReplyAsync("", false, builder.Build());
 
-            await ReplyAsync("Here's a list of my commands: ", false, embed.Build());
-        }
+            }
+            else
+            {
+                while (pageFields.Count > 0)
+                {
+                    PageBuilder page = new PageBuilder();
+                    page.WithTitle(module.Name);
+                    page.WithFields(pageFields.Take(25));
+                    pages.Add(page);
+                    if (pageFields.Count > 25)
+                    {
+                        pageFields.RemoveRange(0, 24);
+                    }
+                    else
+                    {
+                        pageFields.Clear();
+                    }
+                }
 
-        [Command("helptest")]
-        public async Task HelpTest()
-        {
-            PaginatedMessage pMsg = new PaginatedMessage();
-            pMsg.Content = "**Page 1**\n kill me pls \n kek";
-            pMsg.Color = Color.Red;
-            var pages = new[] { "**Page 1**\n end me pls \n kek", "Page 2", "Page 3", "aaaaaa", "Page 5" };
-            pMsg.Pages = pages;
-            await PagedReplyAsync(pMsg);
+                var paginator = new StaticPaginatorBuilder()
+                .WithUsers(Context.User)
+                .WithPages(pages)
+                .WithFooter(PaginatorFooter.PageNumber | PaginatorFooter.Users)
+                .WithDefaultEmotes()
+                .Build();
+
+                await _interactivity.SendPaginatorAsync(paginator, Context.Channel, TimeSpan.FromMinutes(2));
+            }
         }
     }
 }

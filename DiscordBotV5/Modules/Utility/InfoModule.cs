@@ -5,20 +5,18 @@ using System.Linq;
 using System;
 using Discord.WebSocket;
 using DiscordBotV5.Misc;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 
 namespace DiscordBot.Modules.Utility
 {
+    [Name("Info")]
+    [Summary("Get various information about the server and users")]
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
-        private readonly CommandService _commands;
         private readonly DiscordSocketClient _client;
 
         public InfoModule(IServiceProvider services)
         {
-            _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
         }
 
@@ -40,6 +38,7 @@ namespace DiscordBot.Modules.Utility
         [Command("serverinfo")]
         [Summary("Show info about the server")]
         [Alias("si")]
+        [RequireUserPermission(GuildPermission.KickMembers)]
         public async Task ServerInfo()
         {
             await Context.Message.DeleteAsync();
@@ -85,8 +84,9 @@ namespace DiscordBot.Modules.Utility
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
-        [Command("gmembercount")]
-        [Summary("Show howmany members the bot is in")]
+        [Command("GuildMemberCount")]
+        [Alias("gmembercount")]
+        [Summary("Show howmany users the bot is watching over")]
         public async Task GMemberCount()
         {
             int totalMembers = 0;
@@ -100,57 +100,30 @@ namespace DiscordBot.Modules.Utility
             await Context.Channel.SendMessageAsync("", false, embed.Build());
         }
 
-        [Command("whois")]
+        [Command("userinfo")]
         [Summary("Show info about a specific user")]
         [RequireUserPermission(GuildPermission.KickMembers)]
-        public async Task WhoIs(IGuildUser userToCheck)
+        public async Task Info(SocketGuildUser user = null)
         {
-            string gamePlaying = userToCheck.Activity?.Name ?? "Not playing any games";
-            string nickName = userToCheck.Nickname ?? "-";
-            var owner = Context.Guild.Owner;
-            string isOwner;
+            user ??= (SocketGuildUser)Context.User;
 
-            if (userToCheck == owner)
-            {
-                isOwner = "true";
-            }
-            else
-            {
-                isOwner = "false";
-            }
-
+            // Get join position
             SocketGuildUser[] sortedMembers = Context.Guild.Users.ToArray().OrderBy(member => member.JoinedAt).ToArray();
+            sortedMembers = sortedMembers.Where(val => val.IsBot != true).ToArray(); // Remove bots
+            int position = Array.IndexOf(sortedMembers, user) + 1;
 
-            // Remove bots from array
-            sortedMembers = sortedMembers.Where(val => val.IsBot != true).ToArray();
+            Console.WriteLine(((SocketGuildUser)Context.User).Nickname is null);
+            var builder = new EmbedBuilder()
+                .WithThumbnailUrl(user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl())
+                .WithColor(new Color(47, 49, 54))
+                .WithTitle($"User information for: {user.Username + "#" + user.Discriminator}" )
+                .AddField("Userinfo:", "**›Username: **" + user.Username + "\n**›Nickname: **" + ((user as IGuildUser).Nickname ?? "No Nickname.") + "\n**›Joined Position: **" + position, true)
+                .AddField("‎", "**›Created at: **" + user.CreatedAt.ToString("dd/MM/yyyy") + "\n**›Joined at: **" + (user as SocketGuildUser).JoinedAt.Value.ToString("dd/MM/yyyy"), true)
+                .AddField("‎", "**>Roles: **" + string.Join(" ", (user as SocketGuildUser).Roles.Select(x => x.Mention)))
+                .WithCurrentTimestamp();
+            var embed = builder.Build();
 
-            int position = Array.IndexOf(sortedMembers, userToCheck) + 1;
-            //DateTimeFormatInfo mfi = new DateTimeFormatInfo();
-
-            //DateTimeOffset createdAt = userToCheck.CreatedAt;
-            //DateTimeOffset joinedAt = (DateTimeOffset)userToCheck.JoinedAt;
-            //string createdOn = $"{mfi.GetMonthName(createdAt.Month)} {createdAt.Day}th {createdAt.Year}, {createdAt.ToString("hh:mm:ss")} - {(int)(DateTime.Now - createdAt).TotalDays} days";
-            //string boostingSince = "Not Boosting";
-
-            //if (userToCheck.PremiumSince != null)
-            //{
-            //    ((DateTimeOffset)userToCheck.PremiumSince).ToString("mm/dd/yy");
-            //}
-
-            var embed = new EmbedBuilder();
-            embed.WithTitle("WhoIs Lookup for : " + userToCheck.Username);
-            embed.WithThumbnailUrl(userToCheck.GetAvatarUrl());
-            embed.WithDescription($"**User :** {userToCheck}\n" +
-                                  $"**Nickname :** {nickName}\n" +
-                                  $"**Created on :** {userToCheck.CreatedAt}\n" +
-                                  $"**Joined server on :** {userToCheck.JoinedAt}\n" +
-                                  $"**Join position : ** {position}\n" +
-                                  $"**Current Game :** {gamePlaying}\n" +
-                                  $"**Owner :** {isOwner}\n");
-            embed.WithColor(new Color(102, 255, 125));
-
-            await Context.Channel.SendMessageAsync("", false, embed.Build());
-
+            await Context.Channel.SendMessageAsync(null, false, embed);
         }
 
         [Command("ping")]

@@ -10,6 +10,8 @@ using Discord;
 
 namespace DiscordBotV5.Modules.Fun
 {
+    [Name("Neko")]
+    [Summary("Various commands to get Neko images/gifs from nekos.life")]
     [Group("Neko")]
     public class NekoModule : ModuleBase<SocketCommandContext>
     {
