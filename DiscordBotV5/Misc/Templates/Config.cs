@@ -8,5 +8,8 @@
         public string dbPassword = "password";
         public string dbAddress = "ipAddress";
         public string dbPort = "port";
+        public string TheCatApiKey = "CatApiKey";
+        public string SpotifyClientID = "SpotifyClientID";
+        public string SpotifyClientSecret = "SpotifyClientSecret";
     }
 }

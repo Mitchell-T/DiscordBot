@@ -53,7 +53,9 @@ namespace DiscordBotV5
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
             services.GetRequiredService<DatabaseService>().Initialize();
             services.GetRequiredService<ServerPreferenceService>().Initialize();
-            
+            //services.GetRequiredService<SpotifyService>().Initialize();
+
+
 
             _lavaNode = services.GetRequiredService<LavaNode>();
 
@@ -113,6 +115,7 @@ namespace DiscordBotV5
                 // Add additional services here...
                 .AddSingleton<InteractivityService>()
                 .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
+                //.AddSingleton<SpotifyService>()
                 // DONE
                 .BuildServiceProvider();
         }

@@ -3,7 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using DiscordBotV5.Services;
 using Microsoft.Extensions.DependencyInjection;
+//using SpotifyAPI.Web;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -14,11 +16,13 @@ using Victoria.Responses.Search;
 public class AudioModule : ModuleBase<SocketCommandContext>
 {
     private readonly LavaNode _lavaNode;
+    //private readonly SpotifyClient _spotifyClient;
 
     public AudioModule(IServiceProvider provider)
     {
         _lavaNode = provider.GetRequiredService<LavaNode>();
         _lavaNode.OnTrackEnded += OnTrackEnded;
+        //_spotifyClient = provider.GetRequiredService<SpotifyService>()._spotifyClient;
     }
 
     [Command("Join")]
@@ -59,7 +63,7 @@ public class AudioModule : ModuleBase<SocketCommandContext>
 
     [Command("Play")]
     [Alias("p")]
-    [Summary("Plays a song from youtube")]
+    [Summary("Plays a song from Youtube")]
     public async Task PlayAsync([Remainder] string searchQuery)
     {
         //Ensure that the user supplies search terms
@@ -150,6 +154,117 @@ public class AudioModule : ModuleBase<SocketCommandContext>
             }
         }
     }
+
+    //[Command("SPlay")]
+    //[Alias("spotify", "spotifyplay", "spotify-play")]
+    //[Summary("Plays a song from Spotify")]
+    //public async Task PlaySpotifyAsync([Remainder] string spotifyURL)
+    //{
+    //    string spotifyID;
+    //    try {
+    //        string[] splitSpotifyLink = spotifyURL.Split('/');
+    //        spotifyID = splitSpotifyLink[4];
+    //        spotifyID = spotifyID.Substring(0, spotifyID.IndexOf("?"));
+    //    } catch(Exception e)
+    //    {
+    //        await ReplyAsync("An error occured or given Spotify url is not valid");
+    //        return;
+    //    }
+        
+
+    //    FullTrack spotifyTrack = await _spotifyClient.Tracks.Get(spotifyID);
+
+    //    string searchQuery = (spotifyTrack.Artists.FirstOrDefault().Name.ToString() + " - " + spotifyTrack.Name);
+    //    await ReplyAsync(searchQuery);
+
+    //    //Ensure that the user supplies search terms
+    //    if (string.IsNullOrWhiteSpace(searchQuery))
+    //    {
+    //        await ReplyAsync("Please provide search terms.");
+    //        return;
+    //    }
+
+    //    //Join the voice channel if not already in it
+    //    if (!_lavaNode.HasPlayer(Context.Guild))
+    //    {
+    //        await JoinAsync();
+    //    }
+
+    //    //Find the search result from the search terms
+    //    var searchResponse = await _lavaNode.SearchAsync(SearchType.YouTube, searchQuery);
+    //    if (searchResponse.Status == SearchStatus.LoadFailed ||
+    //        searchResponse.Status == SearchStatus.NoMatches)
+    //    {
+    //        await ReplyAsync($"I wasn't able to find anything for `{searchQuery}`.", false);
+    //        return;
+    //    }
+
+    //    //Get the player and start playing/queueing a single song or playlist
+    //    var player = _lavaNode.GetPlayer(Context.Guild);
+    //    //Single Song
+    //    if (player.PlayerState == PlayerState.Playing || player.PlayerState == PlayerState.Paused)
+    //    {
+    //        if (!string.IsNullOrWhiteSpace(searchResponse.Playlist.Name))
+    //        {
+    //            foreach (var track in searchResponse.Tracks)
+    //            {
+    //                player.Queue.Enqueue(track);
+    //            }
+
+    //            await ReplyAsync($"Enqueued {searchResponse.Tracks.Count} tracks.");
+    //        }
+    //        else
+    //        {
+    //            var track = searchResponse.Tracks.ElementAt(0);
+    //            player.Queue.Enqueue(track);
+    //            EmbedBuilder embed = new EmbedBuilder();
+    //            embed.WithTitle($"Enqueued: {track.Title}");
+    //            embed.WithThumbnailUrl(track.FetchArtworkAsync().Result);
+    //            embed.WithColor(3447003);
+    //            embed.WithDescription(track.Duration.ToString());
+    //            await ReplyAsync("", false, embed.Build());
+    //        }
+    //    }
+
+    //    //Playlist
+    //    else
+    //    {
+    //        var track = searchResponse.Tracks.ElementAt(0);
+
+    //        if (!string.IsNullOrWhiteSpace(searchResponse.Playlist.Name))
+    //        {
+    //            for (var i = 0; i < searchResponse.Tracks.Count; i++)
+    //            {
+    //                if (i == 0)
+    //                {
+    //                    await player.PlayAsync(track);
+    //                    EmbedBuilder embed = new EmbedBuilder();
+    //                    embed.WithTitle($"Now Playing: {track.Title}");
+    //                    embed.WithThumbnailUrl(track.FetchArtworkAsync().Result);
+    //                    embed.WithColor(3447003);
+    //                    embed.WithDescription(track.Duration.ToString());
+    //                    await ReplyAsync("", false, embed.Build());
+    //                }
+    //                else
+    //                {
+    //                    player.Queue.Enqueue(searchResponse.Tracks.ElementAt(i));
+    //                }
+    //            }
+
+    //            await ReplyAsync($"Enqueued {searchResponse.Tracks.Count} tracks.");
+    //        }
+    //        else
+    //        {
+    //            await player.PlayAsync(track);
+    //            EmbedBuilder embed = new EmbedBuilder();
+    //            embed.WithTitle($"Now Playing: {track.Title}");
+    //            embed.WithThumbnailUrl(track.FetchArtworkAsync().Result);
+    //            embed.WithColor(3447003);
+    //            embed.WithDescription(track.Duration.ToString());
+    //            await ReplyAsync("", false, embed.Build());
+    //        }
+    //    }
+    //}
 
     [Command("Skip")]
     [Summary("Skips the currently playing song")]
