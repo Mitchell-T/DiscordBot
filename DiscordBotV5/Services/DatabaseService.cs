@@ -23,9 +23,16 @@ namespace DiscordBotV5.Services
 
         public void Initialize()
         {
-            // Connect to database
-            _dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
-            database = _dbClient.GetDatabase("DiscordBot");
+            try
+            {
+                // Connect to database
+                _dbClient = new MongoClient($"mongodb://{_config["dbUsername"]}:{_config["dbPassword"]}@{_config["dbAddress"]}:{_config["dbPort"]}/?authSource=admin&readPreference=primary");
+                database = _dbClient.GetDatabase("DiscordBot");
+            } catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
         }
 
         public IMongoCollection<BsonDocument> GetCollection(string collectionName)
