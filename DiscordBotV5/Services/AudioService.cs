@@ -1,88 +1,153 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Audio;
+using Microsoft.Extensions.Logging;
+using Victoria;
+using Victoria.Enums;
+using Victoria.EventArgs;
 
-public class AudioService
+namespace DiscordBotV5.Services
 {
-    private readonly ConcurrentDictionary<ulong, IAudioClient> ConnectedChannels = new ConcurrentDictionary<ulong, IAudioClient>();
-
-    public async Task JoinAudio(IGuild guild, IVoiceChannel target)
+    public sealed class AudioService
     {
-        IAudioClient client;
-        if (ConnectedChannels.TryGetValue(guild.Id, out client))
-            return;
+        private readonly LavaNode _lavaNode;
+        private readonly ILogger _logger;
+        private readonly ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens;
 
-        if (target.Guild.Id != guild.Id)
-            return;
-
-        var audioClient = await target.ConnectAsync();
-
-        if (ConnectedChannels.TryAdd(guild.Id, audioClient)){}
-    }
-
-    public async Task LeaveAudio(IGuild guild)
-    {
-        IAudioClient client;
-        if (ConnectedChannels.TryRemove(guild.Id, out client))
-            await client.StopAsync();
-    }
-
-    public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string path)
-    {
-
-        if (Environment.OSVersion.Platform == PlatformID.Unix)
-            return;
-
-        //if (!File.Exists(path))
-        //{
-        //    await channel.SendMessageAsync("File does not exist.");
-        //    return;
-        //}
-        IAudioClient client;
-        if (ConnectedChannels.TryGetValue(guild.Id, out client))
+        public AudioService(LavaNode lavaNode, ILoggerFactory loggerFactory)
         {
-            Console.WriteLine(path);
-            Console.WriteLine(Directory.GetCurrentDirectory());
-            using (var ffmpeg = CreateProcess(path))
-            using (var stream = client.CreatePCMStream(AudioApplication.Music))
+            Console.WriteLine("AudioService loaded");
+
+            _lavaNode = lavaNode;
+            _logger = loggerFactory.CreateLogger<LavaNode>();
+            _disconnectTokens = new ConcurrentDictionary<ulong, CancellationTokenSource>();
+
+            _lavaNode.OnLog += arg => {
+                if ((int)arg.Severity <= 2)
+                    _logger.Log(LogLevel.Information, arg.Exception, arg.Message);
+
+                return Task.CompletedTask;
+            };
+
+            _lavaNode.OnPlayerUpdated += OnPlayerUpdated;
+            _lavaNode.OnStatsReceived += OnStatsReceived;
+            _lavaNode.OnTrackEnded += OnTrackEnded;
+            _lavaNode.OnTrackStarted += OnTrackStarted;
+            _lavaNode.OnTrackException += OnTrackException;
+            _lavaNode.OnTrackStuck += OnTrackStuck;
+            _lavaNode.OnWebSocketClosed += OnWebSocketClosed;
+
+        }
+
+        private Task OnPlayerUpdated(PlayerUpdateEventArgs arg)
+        {
+            _logger.LogInformation($"Track update received for {arg.Track.Title}: {arg.Position}");
+            return Task.CompletedTask;
+        }
+
+        private Task OnStatsReceived(StatsEventArgs arg)
+        {
+            _logger.LogInformation($"Lavalink has been up for {arg.Uptime}.");
+            return Task.CompletedTask;
+        }
+
+        private async Task OnTrackStarted(TrackStartEventArgs arg)
+        {
+            Console.WriteLine("started");
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.WithTitle($"Now Playing: {arg.Track.Title}");
+            embed.WithThumbnailUrl(arg.Track.FetchArtworkAsync().Result);
+            embed.WithColor(3447003);
+            embed.WithDescription(arg.Track.Duration.ToString());
+            await arg.Player.TextChannel.SendMessageAsync("", false, embed.Build());
+
+            if (!_disconnectTokens.TryGetValue(arg.Player.VoiceChannel.Id, out var value))
             {
-                try { await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream); }
-                finally { await stream.FlushAsync(); }
+                return;
             }
+
+            if (value.IsCancellationRequested)
+            {
+                return;
+            }
+
+            value.Cancel(true);
+            await arg.Player.TextChannel.SendMessageAsync("Auto disconnect has been cancelled!");
         }
-    }
 
-    private Process CreateProcess(string path)
-    {
-        switch (Environment.OSVersion.Platform)
+        private async Task OnTrackEnded(TrackEndedEventArgs args)
         {
-            case PlatformID.Unix:
-                return CreateUnixProcess(path);
 
+            Console.WriteLine("ended");
+            if (args.Reason != TrackEndReason.Finished)
+            {
+                return;
+            }
+
+            var player = args.Player;
+            if (!player.Queue.TryDequeue(out var lavaTrack))
+            {
+                await player.TextChannel.SendMessageAsync("Queue completed! Please add more tracks to rock n' roll!");
+                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromSeconds(10));
+                return;
+            }
+
+            if (lavaTrack is null)
+            {
+                await player.TextChannel.SendMessageAsync("Next item in queue is not a track.");
+                return;
+            }
+
+            await args.Player.PlayAsync(lavaTrack);
         }
-        return Process.Start(new ProcessStartInfo
-        {
-            FileName = "cmd",
-            Arguments = $"/C youtube-dl -o - {path} | ffmpeg -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1",
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            CreateNoWindow = false
-        }); ;
-    }
 
-    private Process CreateUnixProcess(string path)
-    {
-        return Process.Start(new ProcessStartInfo
+        private async Task InitiateDisconnectAsync(LavaPlayer player, TimeSpan timeSpan)
         {
-            FileName = "/bin/bash",
-            Arguments = $"/C youtube-dl -o - {path} | ffmpeg -i pipe:0 -ac 2 -f s16le -ar 48000 pipe:1",
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            CreateNoWindow = false
-        }); ;
+            if (!_disconnectTokens.TryGetValue(player.VoiceChannel.Id, out var value))
+            {
+                value = new CancellationTokenSource();
+                _disconnectTokens.TryAdd(player.VoiceChannel.Id, value);
+            }
+            else if (value.IsCancellationRequested)
+            {
+                _disconnectTokens.TryUpdate(player.VoiceChannel.Id, new CancellationTokenSource(), value);
+                value = _disconnectTokens[player.VoiceChannel.Id];
+            }
+
+            await player.TextChannel.SendMessageAsync($"Auto disconnect initiated! Disconnecting in {timeSpan}...");
+            var isCancelled = SpinWait.SpinUntil(() => value.IsCancellationRequested, timeSpan);
+            if (isCancelled)
+            {
+                return;
+            }
+
+            await _lavaNode.LeaveAsync(player.VoiceChannel);
+            await player.TextChannel.SendMessageAsync("Invite me again sometime, sugar.");
+        }
+
+        private async Task OnTrackException(TrackExceptionEventArgs arg)
+        {
+            _logger.LogError($"Track {arg.Track.Title} threw an exception. Please check Lavalink console/logs.");
+            arg.Player.Queue.Enqueue(arg.Track);
+            await arg.Player.TextChannel.SendMessageAsync(
+                $"{arg.Track.Title} has been re-added to queue after throwing an exception.");
+        }
+
+        private async Task OnTrackStuck(TrackStuckEventArgs arg)
+        {
+            _logger.LogError(
+                $"Track {arg.Track.Title} got stuck for {arg.Threshold}ms. Please check Lavalink console/logs.");
+            arg.Player.Queue.Enqueue(arg.Track);
+            await arg.Player.TextChannel.SendMessageAsync(
+                $"{arg.Track.Title} has been re-added to queue after getting stuck.");
+        }
+
+        private Task OnWebSocketClosed(WebSocketClosedEventArgs arg)
+        {
+            _logger.LogCritical($"Discord WebSocket connection closed with following reason: {arg.Reason}");
+            return Task.CompletedTask;
+        }
     }
 }

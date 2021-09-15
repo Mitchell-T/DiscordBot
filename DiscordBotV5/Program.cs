@@ -28,18 +28,15 @@ namespace DiscordBotV5
 
         public async Task MainAsync()
         {
-            //DiscordSocketConfig socketConfig = new DiscordSocketConfig()
-            //{
-
-            //}
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 AlwaysDownloadUsers = true,
                 MessageCacheSize = 10000,
-                GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildPresences,
+                GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildPresences | GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMembers | GatewayIntents.GuildPresences,
                 LogLevel = LogSeverity.Info
             });
+
 
             // build or create config
             ConfigTools configBuilder = new ConfigTools();
@@ -53,7 +50,7 @@ namespace DiscordBotV5
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
             services.GetRequiredService<DatabaseService>().Initialize();
             services.GetRequiredService<ServerPreferenceService>().Initialize();
-            //services.GetRequiredService<SpotifyService>().Initialize();
+            services.GetRequiredService<SpotifyService>().Initialize();
 
 
 
@@ -115,7 +112,7 @@ namespace DiscordBotV5
                 // Add additional services here...
                 .AddSingleton<InteractivityService>()
                 .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
-                //.AddSingleton<SpotifyService>()
+                .AddSingleton<SpotifyService>()
                 // DONE
                 .BuildServiceProvider();
         }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBotV5.Services
 {
-    class SpotifyService
+    public class SpotifyService
     {
         private readonly IConfiguration _config;
 
