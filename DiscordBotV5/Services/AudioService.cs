@@ -3,7 +3,12 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using DiscordBotV5.Misc.Templates;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
@@ -15,14 +20,14 @@ namespace DiscordBotV5.Services
         private readonly LavaNode _lavaNode;
         private readonly ILogger _logger;
         private readonly ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens;
+        private readonly DatabaseService _db;
 
-        public AudioService(LavaNode lavaNode, ILoggerFactory loggerFactory)
+        public AudioService(LavaNode lavaNode, ILoggerFactory loggerFactory, DatabaseService db)
         {
-            Console.WriteLine("AudioService loaded");
-
             _lavaNode = lavaNode;
             _logger = loggerFactory.CreateLogger<LavaNode>();
             _disconnectTokens = new ConcurrentDictionary<ulong, CancellationTokenSource>();
+            _db = db;
 
             _lavaNode.OnLog += arg => {
                 if ((int)arg.Severity <= 2)
@@ -55,7 +60,6 @@ namespace DiscordBotV5.Services
 
         private async Task OnTrackStarted(TrackStartEventArgs arg)
         {
-            Console.WriteLine("started");
             EmbedBuilder embed = new EmbedBuilder();
             embed.WithTitle($"Now Playing: {arg.Track.Title}");
             embed.WithThumbnailUrl(arg.Track.FetchArtworkAsync().Result);
@@ -79,8 +83,6 @@ namespace DiscordBotV5.Services
 
         private async Task OnTrackEnded(TrackEndedEventArgs args)
         {
-
-            Console.WriteLine("ended");
             if (args.Reason != TrackEndReason.Finished)
             {
                 return;
@@ -90,7 +92,7 @@ namespace DiscordBotV5.Services
             if (!player.Queue.TryDequeue(out var lavaTrack))
             {
                 await player.TextChannel.SendMessageAsync("Queue completed! Please add more tracks to rock n' roll!");
-                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromSeconds(10));
+                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromSeconds(120));
                 return;
             }
 
@@ -124,7 +126,7 @@ namespace DiscordBotV5.Services
             }
 
             await _lavaNode.LeaveAsync(player.VoiceChannel);
-            await player.TextChannel.SendMessageAsync("Invite me again sometime, sugar.");
+            await player.TextChannel.SendMessageAsync("Invite me again sometime");
         }
 
         private async Task OnTrackException(TrackExceptionEventArgs arg)
@@ -147,6 +149,31 @@ namespace DiscordBotV5.Services
         private Task OnWebSocketClosed(WebSocketClosedEventArgs arg)
         {
             _logger.LogCritical($"Discord WebSocket connection closed with following reason: {arg.Reason}");
+            return Task.CompletedTask;
+        }
+
+        public Task LogMusicToDB(LavaTrack track, SocketCommandContext context)
+        {
+            //Get collection from database
+            IMongoCollection< BsonDocument > collection = _db.GetCollection("MusicLogs");
+
+            MusicLog newMusicLog = new MusicLog()
+            {
+                guild = Convert.ToInt64(context.Guild.Id),
+                user = Convert.ToInt64(context.User.Id),
+                username = context.User.Username,
+                date = DateTime.Now,
+
+                songTitle = track.Title,
+                songArtist = track.Author,
+                songUrl = track.Url,
+                songDuration = track.Duration
+            };
+
+            BsonDocument musicLogBson = new BsonDocument();
+            musicLogBson = newMusicLog.ToBsonDocument();
+            collection.InsertOne(musicLogBson);
+
             return Task.CompletedTask;
         }
     }

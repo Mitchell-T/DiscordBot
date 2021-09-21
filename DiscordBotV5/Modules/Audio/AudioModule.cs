@@ -2,32 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using DiscordBotV5.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SpotifyAPI.Web;
 using Victoria;
 using Victoria.Enums;
 using Victoria.EventArgs;
 using Victoria.Responses.Search;
+using DiscordBotV5.Misc.Preconditions;
 
 [Name("Audio")]
 [Summary("Play music in voice channels")]
+//[IsNotEban]
 public class AudioModule : ModuleBase<SocketCommandContext>
 {
     private readonly LavaNode _lavaNode;
     private readonly SpotifyClient _spotifyClient;
     private readonly AudioService _audioService;
+    private readonly DiscordSocketClient _discordSocketClient;
+    private readonly ILogger _logger;
 
     private static readonly IEnumerable<int> Range = Enumerable.Range(1900, 2000);
 
-    public AudioModule(IServiceProvider provider, LavaNode lavaNode, SpotifyService spotifyService, AudioService audioService)
+    public AudioModule(IServiceProvider provider, LavaNode lavaNode, SpotifyService spotifyService, AudioService audioService, DiscordSocketClient discordSocketClient, ILoggerFactory loggerFactory)
     {
         _lavaNode = lavaNode;
         _spotifyClient = spotifyService._spotifyClient;
         _audioService = audioService;
+        _discordSocketClient = discordSocketClient;
+        _logger = loggerFactory.CreateLogger<LavaNode>();
     }
 
     [Command("Join")]
@@ -47,6 +56,11 @@ public class AudioModule : ModuleBase<SocketCommandContext>
             return;
         }
 
+        if (!Context.Guild.CurrentUser.GetPermissions(voiceState.VoiceChannel).Has(ChannelPermission.Connect)){
+            await ReplyAsync("The bot does not have permission to join that channel");
+            return;
+        }
+
         try
         {
             await _lavaNode.JoinAsync(voiceState.VoiceChannel, Context.Channel as ITextChannel);
@@ -60,10 +74,30 @@ public class AudioModule : ModuleBase<SocketCommandContext>
 
     [Command("leave", RunMode = RunMode.Async)]
     [Summary("Leave the voice channel")]
-    public async Task Leave()
+    public async Task LeaveAsync()
     {
-        var player = _lavaNode.GetPlayer(Context.Guild);
-        await _lavaNode.LeaveAsync(player.VoiceChannel);
+        if (!_lavaNode.TryGetPlayer(Context.Guild, out var player))
+        {
+            await ReplyAsync("I'm not connected to any voice channels!");
+            return;
+        }
+
+        var voiceChannel = (Context.User as IVoiceState)?.VoiceChannel ?? player.VoiceChannel;
+        if (voiceChannel == null)
+        {
+            await ReplyAsync("Not sure which voice channel to disconnect from.");
+            return;
+        }
+
+        try
+        {
+            await _lavaNode.LeaveAsync(voiceChannel);
+            await ReplyAsync($"I've left {voiceChannel.Name}!");
+        }
+        catch (Exception exception)
+        {
+            await ReplyAsync(exception.Message);
+        }
     }
 
     [Command("Play")]
@@ -71,6 +105,12 @@ public class AudioModule : ModuleBase<SocketCommandContext>
     [Summary("Plays a song from Youtube")]
     public async Task PlayAsync([Remainder] string searchQuery)
     {
+
+        //if (Regex.IsMatch(searchQuery, @"^(spotify:|https:\/\/[a-z]+\.spotify\.com\/)")){
+        if (Uri.IsWellFormedUriString(searchQuery, UriKind.Absolute) && searchQuery.Contains("spotify")){
+            searchQuery = await SpotifyToSearchQuery(searchQuery);
+        }
+
         if (string.IsNullOrWhiteSpace(searchQuery))
         {
             await ReplyAsync("Please provide search terms.");
@@ -81,9 +121,13 @@ public class AudioModule : ModuleBase<SocketCommandContext>
         if (!_lavaNode.HasPlayer(Context.Guild))
         {
             await JoinAsync();
+            // Check if properly joined
+            if (!_lavaNode.HasPlayer(Context.Guild))
+                return;
         }
+            
 
-        var searchResponse = await _lavaNode.SearchAsync(SearchType.YouTube, searchQuery);
+        var searchResponse = await _lavaNode.SearchAsync(Uri.IsWellFormedUriString(searchQuery, UriKind.Absolute) ? SearchType.Direct : SearchType.YouTube, searchQuery);
         if (searchResponse.Status is SearchStatus.LoadFailed or SearchStatus.NoMatches)
         {
             await ReplyAsync($"I wasn't able to find anything for `{searchQuery}`.");
@@ -102,68 +146,7 @@ public class AudioModule : ModuleBase<SocketCommandContext>
             player.Queue.Enqueue(track);
 
             await ReplyAsync($"Enqueued {track?.Title}");
-        }
-
-        if (player.PlayerState is PlayerState.Playing or PlayerState.Paused)
-        {
-            return;
-        }
-
-        player.Queue.TryDequeue(out var lavaTrack);
-        await player.PlayAsync(x => {
-            x.Track = lavaTrack;
-            x.ShouldPause = false;
-        });
-    }
-
-    [Command("SPlay")]
-    [Alias("spotify", "spotifyplay", "spotify-play")]
-    [Summary("Plays a song from Spotify")]
-    public async Task PlaySpotifyAsync([Remainder] string spotifyURL)
-    {
-        string spotifyID;
-        try
-        {
-            string[] splitSpotifyLink = spotifyURL.Split('/');
-            spotifyID = splitSpotifyLink[4];
-            spotifyID = spotifyID.Substring(0, spotifyID.IndexOf("?"));
-        }
-        catch (Exception e)
-        {
-            await ReplyAsync("An error occured or given Spotify url is not valid " + e.Message);
-            return;
-        }
-
-
-        FullTrack spotifyTrack = await _spotifyClient.Tracks.Get(spotifyID);
-
-        string searchQuery = (spotifyTrack.Artists.FirstOrDefault().Name.ToString() + " - " + spotifyTrack.Name);
-
-        //Join the voice channel if not already in it
-        if (!_lavaNode.HasPlayer(Context.Guild))
-        {
-            await JoinAsync();
-        }
-
-        var searchResponse = await _lavaNode.SearchAsync(SearchType.YouTube, searchQuery);
-        if (searchResponse.Status is SearchStatus.LoadFailed or SearchStatus.NoMatches)
-        {
-            await ReplyAsync($"I wasn't able to find anything for `{searchQuery}`.");
-            return;
-        }
-
-        var player = _lavaNode.GetPlayer(Context.Guild);
-        if (!string.IsNullOrWhiteSpace(searchResponse.Playlist.Name))
-        {
-            player.Queue.Enqueue(searchResponse.Tracks);
-            await ReplyAsync($"Enqueued {searchResponse.Tracks.Count} songs.");
-        }
-        else
-        {
-            var track = searchResponse.Tracks.FirstOrDefault();
-            player.Queue.Enqueue(track);
-
-            await ReplyAsync($"Enqueued {track?.Title}");
+            await _audioService.LogMusicToDB(track, Context);
         }
 
         if (player.PlayerState is PlayerState.Playing or PlayerState.Paused)
@@ -296,13 +279,14 @@ public class AudioModule : ModuleBase<SocketCommandContext>
 
     [Command("Seek")]
     [Summary("Seek through a song")]
-    public async Task SeekAsync([Remainder] string seekString)
+    public async Task SeekAsync(TimeSpan timeSpan)
     {
-        if(!TimeSpan.TryParse(seekString, out TimeSpan timeSpan))
-        {
-            await ReplyAsync("Input is not a valid timestamp");
-            return;
-        }
+        //// Timespan parser
+        //if(!TimeSpan.TryParse(seekString, out TimeSpan timeSpan))
+        //{
+        //    await ReplyAsync("Input is not a valid timestamp");
+        //    return;
+        //}
             
         if (!_lavaNode.TryGetPlayer(Context.Guild, out var player))
         {
@@ -342,8 +326,8 @@ public class AudioModule : ModuleBase<SocketCommandContext>
             await ReplyAsync("Woaaah there, I'm not playing any tracks.");
             return;
         }
-
         var lyrics = await player.Track.FetchLyricsFromGeniusAsync();
+
         if (string.IsNullOrWhiteSpace(lyrics))
         {
             await ReplyAsync($"No lyrics found for {player.Track.Title}");
@@ -370,6 +354,7 @@ public class AudioModule : ModuleBase<SocketCommandContext>
         }
 
         var lyrics = await player.Track.FetchLyricsFromOvhAsync();
+        
         if (string.IsNullOrWhiteSpace(lyrics))
         {
             await ReplyAsync($"No lyrics found for {player.Track.Title}");
@@ -402,7 +387,6 @@ public class AudioModule : ModuleBase<SocketCommandContext>
         //Create an embed using that image url
         var builder = new EmbedBuilder();
         builder.WithTitle("Music Queue");
-        builder.WithThumbnailUrl(player.Track.FetchArtworkAsync().Result);
         builder.WithColor(3447003);
         builder.WithDescription("");
         TimeSpan totalQueueTime = new TimeSpan();
@@ -451,6 +435,29 @@ public class AudioModule : ModuleBase<SocketCommandContext>
         }
 
         await ReplyAsync($"```{stringBuilder}```");
+    }
+
+    private async Task<String> SpotifyToSearchQuery(string spotifyURL)
+    {
+        string spotifyID;
+        try
+        {
+            string[] splitSpotifyLink = spotifyURL.Split('/');
+            spotifyID = splitSpotifyLink[4];
+            spotifyID = spotifyID.Substring(0, spotifyID.IndexOf("?"));
+        }
+        catch (Exception e)
+        {
+            await ReplyAsync("An error occured or given Spotify url is not valid " + e.Message);
+            return "";
+        }
+
+
+        FullTrack spotifyTrack = await _spotifyClient.Tracks.Get(spotifyID);
+
+        string searchQuery = (spotifyTrack.Artists.FirstOrDefault().Name.ToString() + " - " + spotifyTrack.Name);
+
+        return searchQuery;
     }
 
 }

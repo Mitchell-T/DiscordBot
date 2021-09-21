@@ -10,7 +10,7 @@ using Discord;
 
 namespace DiscordBotV5.Modules.Fun
 {
-    [Name("Neko Actions")]
+    [Name("NekoActions")]
     [Summary("Various neko actions from nekos.life")]
     public class NekoActionsModule : ModuleBase<SocketCommandContext>
     {
@@ -36,7 +36,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** slaps **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** slaps **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             embed.WithCurrentTimestamp();
             await ReplyAsync("", false, embed.Build());
@@ -57,7 +57,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** pokes **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** pokes **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -77,7 +77,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** is getting hugged by **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** is getting hugged by **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -97,7 +97,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** kisses **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** kisses **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -117,7 +117,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** pats **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** pats **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -137,7 +137,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** tickles **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** tickles **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -157,7 +157,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** feeds **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** feeds **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }
@@ -177,7 +177,7 @@ namespace DiscordBotV5.Modules.Fun
 
             await Context.Message.DeleteAsync();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.WithTitle($"**{Context.User.Mention}** cuddles **{user.Mention}**");
+            embed.WithDescription($"{Context.User.Mention}** cuddles **{user.Mention}");
             embed.WithImageUrl(req.ImageUrl);
             await ReplyAsync("", false, embed.Build());
         }

@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace DiscordBotV5.Modules.Fun
 {
-    [Name("Magic 8 Ball")]
+    [Name("Magic8Ball")]
     [Summary("Various magic 8-Ball commands")]
     public class MagicEightBallModule : ModuleBase<SocketCommandContext>
     {

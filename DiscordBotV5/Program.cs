@@ -14,6 +14,7 @@ using System.Net;
 using System.Linq;
 using Interactivity;
 using DiscordBotV5.Misc.TypeReaders;
+using DiscordBotV5.Services.Eval;
 
 namespace DiscordBotV5
 {
@@ -113,6 +114,7 @@ namespace DiscordBotV5
                 .AddSingleton<InteractivityService>()
                 .AddSingleton(new InteractivityConfig { DefaultTimeout = TimeSpan.FromSeconds(20) })
                 .AddSingleton<SpotifyService>()
+                .AddScoped<IEvalService, EvalService>()
                 // DONE
                 .BuildServiceProvider();
         }

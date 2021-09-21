@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBotV5.Services
 {
-    class DatabaseService
+    public sealed class DatabaseService
     {
         private readonly IConfiguration _config;
         private MongoClient _dbClient;

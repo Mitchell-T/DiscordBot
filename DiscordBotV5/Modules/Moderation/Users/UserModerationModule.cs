@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace DiscordBotV5.Modules.Moderation.Users
 {
-    [Name("User Moderation")]
+    [Name("UserModeration")]
     [Summary("Various moderation actions for users")]
     public class UserModerationModule : ModuleBase<SocketCommandContext>
     {
         [Command("mute")]
         [Summary("Mutes a user in a voice channel")]
-        [RequireUserPermission(GuildPermission.MuteMembers)]
+        //[RequireUserPermission(GuildPermission.MuteMembers)]
         [RequireBotPermission(GuildPermission.MuteMembers)]
         public async Task Mute(IGuildUser user)
         {
